@@ -1,8 +1,8 @@
 [package]
-name = "screenpipe-config"
+name = "loopcut-config"
 version.workspace = true
 authors.workspace = true
-description = "Shared recording configuration for screenpipe (app, CLI, and engine)"
+description = "Shared recording configuration for loopcut (app, CLI, and engine)"
 repository.workspace = true
 license.workspace = true
 edition.workspace = true

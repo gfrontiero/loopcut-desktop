@@ -1,10 +1,10 @@
 {
-  "name": "@screenpipe/sync",
+  "name": "@loopcut/sync",
   "version": "0.5.0",
-  "description": "Sync Screenpipe activity to structured daily summaries. Uses Claude Code CLI for AI extraction.",
+  "description": "Sync Loopcut activity to structured daily summaries. Uses Claude Code CLI for AI extraction.",
   "type": "module",
   "bin": {
-    "screenpipe-sync": "dist/index.js"
+    "loopcut-sync": "dist/index.js"
   },
   "scripts": {
     "build": "bun build src/index.ts --outdir dist --target node",
@@ -12,7 +12,7 @@
     "prepublishOnly": "bun run build"
   },
   "keywords": [
-    "screenpipe",
+    "loopcut",
     "productivity",
     "ai",
     "screen-recording",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/screenpipe/screenpipe",
+    "url": "https://github.com/loopcut/loopcut-desktop",
     "directory": "packages/sync"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 [package]
-name = "screenpipe-audio"
+name = "loopcut-audio"
 version = { workspace = true }
 authors = { workspace = true }
 description = { workspace = true }
@@ -62,10 +62,10 @@ webrtc-vad = "0.4.0"
 # Deepgram
 reqwest = { workspace = true }
 
-screenpipe-core = { path = "../screenpipe-core" }
-screenpipe-events = { path = "../screenpipe-events" }
-screenpipe-config = { path = "../screenpipe-config" }
-screenpipe-db = { path = "../screenpipe-db" }
+loopcut-core = { path = "../screenpipe-core" }
+loopcut-events = { path = "../screenpipe-events" }
+loopcut-config = { path = "../screenpipe-config" }
+loopcut-db = { path = "../screenpipe-db" }
 
 # crossbeam
 crossbeam = { workspace = true }
@@ -149,7 +149,7 @@ parakeet = ["dep:audiopipe"]
 parakeet-mlx = ["dep:audiopipe", "audiopipe?/parakeet-mlx", "dep:mlx-rs"]
 
 [[example]]
-name = "screenpipe-audio"
+name = "loopcut-audio"
 path = "examples/screenpipe-audio.rs"
 
 [[test]]

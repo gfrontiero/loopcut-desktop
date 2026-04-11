@@ -1,8 +1,8 @@
 [package]
-name = "screenpipe-vault"
+name = "loopcut-vault"
 version.workspace = true
 authors.workspace = true
-description = "Vault encryption for screenpipe data at rest"
+description = "Vault encryption for loopcut data at rest"
 repository.workspace = true
 license.workspace = true
 edition.workspace = true

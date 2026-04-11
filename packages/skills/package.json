@@ -1,10 +1,10 @@
 {
-  "name": "@screenpipe/skills",
+  "name": "@loopcut/skills",
   "version": "0.1.1",
-  "description": "Screenpipe skills for AI agents (OpenClaw, Claude Code, etc). Query your screen history, get daily digests, search memories.",
+  "description": "Loopcut skills for AI agents (OpenClaw, Claude Code, etc). Query your screen history, get daily digests, search memories.",
   "type": "module",
   "bin": {
-    "screenpipe-skills": "dist/index.js"
+    "loopcut-skills": "dist/index.js"
   },
   "scripts": {
     "build": "bun build src/index.ts --outdir dist --target node",
@@ -16,7 +16,7 @@
     "skills"
   ],
   "keywords": [
-    "screenpipe",
+    "loopcut",
     "ai-agent",
     "openclaw",
     "skills",
@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/screenpipe/screenpipe",
+    "url": "https://github.com/loopcut/loopcut-desktop",
     "directory": "packages/skills"
   },
   "devDependencies": {

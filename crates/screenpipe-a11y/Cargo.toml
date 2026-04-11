@@ -1,17 +1,17 @@
 [package]
-name = "screenpipe-a11y"
+name = "loopcut-a11y"
 version = "0.1.0"
 edition = "2021"
-description = "Accessibility and UI event capture for screenpipe - keyboard, mouse, clipboard"
+description = "Accessibility and UI event capture for loopcut - keyboard, mouse, clipboard"
 license = "MIT"
 
 [features]
 default = []
-db = ["screenpipe-db"]
+db = ["loopcut-db"]
 
 [dependencies]
-screenpipe-db = { path = "../screenpipe-db", optional = true }
-screenpipe-core = { path = "../screenpipe-core" }
+loopcut-db = { path = "../screenpipe-db", optional = true }
+loopcut-core = { path = "../screenpipe-core" }
 # Core
 anyhow = "1.0"
 tracing = "0.1"

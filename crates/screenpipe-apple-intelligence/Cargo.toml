@@ -1,5 +1,5 @@
 [package]
-name = "screenpipe-apple-intelligence"
+name = "loopcut-apple-intelligence"
 version = "0.1.0"
 edition = "2021"
 description = "On-device AI processing using Apple Foundation Models framework (macOS 26+)"
@@ -7,7 +7,7 @@ license = "MIT"
 
 [features]
 default = []
-screenpipe-query = ["dep:reqwest", "dep:tokio"]
+loopcut-query = ["dep:reqwest", "dep:tokio"]
 server = ["dep:axum", "dep:tokio", "dep:uuid", "dep:tokio-stream"]
 
 [dependencies]
