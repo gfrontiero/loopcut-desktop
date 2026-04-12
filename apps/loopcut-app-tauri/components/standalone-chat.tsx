@@ -571,7 +571,7 @@ function MarkdownBlock({ text, isUser }: { text: string; isUser: boolean }) {
               <a
                 href="#"
                 onClick={handleTimelineClick}
-                className="underline underline-offset-2 text-blue-500 hover:text-blue-400 cursor-pointer inline"
+                className="underline underline-offset-2 text-emerald-500 hover:text-emerald-400 cursor-pointer inline"
                 {...props}
               >
                 {children}
@@ -3487,7 +3487,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
                 key={`time-${idx}`}
                 type="button"
                 onClick={() => removeFilter("time", range.label)}
-                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-full hover:bg-blue-500/20 transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full hover:bg-emerald-500/20 transition-colors"
               >
                 <span>🕐</span>
                 <span>{range.label}</span>
@@ -3498,7 +3498,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
               <button
                 type="button"
                 onClick={() => removeFilter("content")}
-                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 rounded-full hover:bg-purple-500/20 transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full hover:bg-emerald-500/20 transition-colors"
               >
                 <span>{activeFilters.contentType === "audio" ? "🎤" : "🖥️"}</span>
                 <span>{activeFilters.contentType}</span>

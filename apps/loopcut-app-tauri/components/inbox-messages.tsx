@@ -106,7 +106,7 @@ const MessageCard = React.memo(
                       href={href}
                       target={isExternal ? "_blank" : undefined}
                       rel={isExternal ? "noopener noreferrer" : undefined}
-                      className="break-all text-blue-500 hover:underline"
+                      className="break-all text-emerald-500 hover:underline"
                       {...props}
                     >
                       {children}

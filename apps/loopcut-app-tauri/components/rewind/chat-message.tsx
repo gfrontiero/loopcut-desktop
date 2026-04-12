@@ -241,7 +241,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
 									<a
 										href={href}
 										onClick={handleTimelineClick}
-										className="underline underline-offset-2 text-blue-500 hover:text-blue-400 cursor-pointer inline"
+										className="underline underline-offset-2 text-emerald-500 hover:text-emerald-400 cursor-pointer inline"
 										{...props}
 									>
 										{children}

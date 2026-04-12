@@ -300,7 +300,7 @@
   .selectable-text-layer *::selection,
   .prose::selection,
   .prose *::selection {
-    background-color: rgba(59, 130, 246, 0.35) !important;
+    background-color: rgba(0, 255, 136, 0.35) !important;
   }
 
   /* Allow video/audio controls to work normally */

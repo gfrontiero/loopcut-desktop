@@ -31,7 +31,7 @@ const SplashScreen: React.FC = () => {
           
           {/* Subtle glow effect */}
           <motion.div
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20"
+            className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500/20 to-green-400/20"
             animate={{
               opacity: [0.3, 0.6, 0.3],
             }}
@@ -54,8 +54,8 @@ const SplashScreen: React.FC = () => {
           }}
           className="text-center"
         >
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            screenpipe
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
+            Loopcut
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Your AI-powered digital memory

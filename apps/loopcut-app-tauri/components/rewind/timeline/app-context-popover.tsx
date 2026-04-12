@@ -304,7 +304,7 @@ export function AppContextPopover({
 								return (
 									<button
 										key={i}
-										className="flex items-center gap-1 text-blue-400 hover:text-blue-300 truncate w-full text-left transition-colors"
+										className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 truncate w-full text-left transition-colors"
 										title={u.url}
 										onClick={() => {
 											openUrl(u.url).catch(() => {});
