@@ -7,8 +7,10 @@
 //! Cached suggestions are instantly available when the chat opens.
 
 use futures::StreamExt;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::collections::HashSet;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::{debug, info, warn};
@@ -1325,16 +1327,86 @@ async fn count_accessibility_rows() -> i64 {
     }
 }
 
-/// Build a context string that fits within ~4500 chars (~1100 tokens) using
-/// the best available data sources. Priority: accessibility > OCR, always audio.
+/// Extract URLs/domains from text content for workflow analysis.
+fn extract_urls_from_text(text: &str) -> HashSet<String> {
+    let mut urls = HashSet::new();
+    let re = Regex::new(
+        r"(?i)(linkedin\.com|gmail\.com|mail\.google\.com|hubspot\.com|gemini\.google\.com|notion\.so|slack\.com|github\.com|docs\.google\.com|drive\.google\.com|calendar\.google\.com|salesforce\.com|figma\.com|jira\.atlassian|trello\.com|asana\.com|zoom\.us|grain\.com|claude\.ai|chatgpt\.com)"
+    ).unwrap();
+    for cap in re.find_iter(text) {
+        urls.insert(cap.as_str().to_lowercase());
+    }
+    urls
+}
+
+/// Detect app transition sequences from window activity (ordered by frequency).
+/// Returns transitions like "Chrome → Claude → Chrome" from consecutive windows.
+fn detect_app_transitions(windows: &[WindowActivity]) -> Vec<String> {
+    if windows.len() < 2 {
+        return vec![];
+    }
+    let mut transitions = Vec::new();
+    let mut seen = HashSet::new();
+    for pair in windows.windows(2) {
+        let from = &pair[0].app_name;
+        let to = &pair[1].app_name;
+        if from != to {
+            let key = format!("{} → {}", from, to);
+            if seen.insert(key.clone()) {
+                transitions.push(key);
+            }
+        }
+    }
+    transitions.truncate(8);
+    transitions
+}
+
+/// Extract site-specific context from window titles (e.g. "Gmail - Compose" → site: gmail, action: compose).
+fn extract_site_context(windows: &[WindowActivity]) -> Vec<String> {
+    let mut contexts = Vec::new();
+    let mut seen = HashSet::new();
+    let site_patterns: &[(&str, &str)] = &[
+        ("linkedin.com", "LinkedIn"),
+        ("gmail", "Gmail"),
+        ("mail.google", "Gmail"),
+        ("hubspot", "HubSpot"),
+        ("gemini.google", "Gemini"),
+        ("notion.so", "Notion"),
+        ("slack", "Slack"),
+        ("github.com", "GitHub"),
+        ("docs.google", "Google Docs"),
+        ("calendar.google", "Google Calendar"),
+        ("figma.com", "Figma"),
+        ("grain", "Grain"),
+        ("claude", "Claude"),
+        ("zoom", "Zoom"),
+        ("salesforce", "Salesforce"),
+    ];
+
+    for w in windows {
+        let title_lower = w.window_name.to_lowercase();
+        for (pattern, name) in site_patterns {
+            if title_lower.contains(pattern) && seen.insert(name.to_string()) {
+                let title_truncated: String = w.window_name.chars().take(60).collect();
+                contexts.push(format!("  {} — \"{}\"", name, title_truncated));
+            }
+        }
+    }
+    contexts
+}
+
+/// Build a context string that fits within ~6000 chars (~1500 tokens) using
+/// the best available data sources. Includes URL extraction, app transitions,
+/// and site-specific context for workflow analysis.
+/// Priority: accessibility > OCR, always audio.
 async fn build_activity_context(apps: &[AppActivity], windows: &[WindowActivity]) -> String {
-    const MAX_CHARS: usize = 4500;
+    const MAX_CHARS: usize = 6000;
     let mut parts = Vec::new();
     let mut char_budget = MAX_CHARS;
 
     // 1. Always include app summary (~300 chars)
     parts.push("Apps (last 30min):".to_string());
-    for app in apps.iter().take(6) {
+    for app in apps.iter().take(8) {
         let line = format!("  {} ({})", app.app_name, app.cnt);
         parts.push(line);
     }
@@ -1342,9 +1414,9 @@ async fn build_activity_context(apps: &[AppActivity], windows: &[WindowActivity]
 
     // 2. Window titles (~400 chars)
     parts.push("Windows:".to_string());
-    for w in windows.iter().take(6) {
-        let title = if w.window_name.chars().count() > 50 {
-            let truncated: String = w.window_name.chars().take(47).collect();
+    for w in windows.iter().take(8) {
+        let title = if w.window_name.chars().count() > 60 {
+            let truncated: String = w.window_name.chars().take(57).collect();
             format!("{}...", truncated)
         } else {
             w.window_name.clone()
@@ -1353,10 +1425,30 @@ async fn build_activity_context(apps: &[AppActivity], windows: &[WindowActivity]
     }
     parts.push(String::new());
 
+    // 3. App transitions — detect multi-app workflow sequences
+    let transitions = detect_app_transitions(windows);
+    if !transitions.is_empty() {
+        parts.push("App transitions detected:".to_string());
+        for t in &transitions {
+            parts.push(format!("  {}", t));
+        }
+        parts.push(String::new());
+    }
+
+    // 4. Site-specific context from window titles
+    let site_ctx = extract_site_context(windows);
+    if !site_ctx.is_empty() {
+        parts.push("Sites/tools in use:".to_string());
+        for s in &site_ctx {
+            parts.push(s.clone());
+        }
+        parts.push(String::new());
+    }
+
     let header_len: usize = parts.iter().map(|s| s.len() + 1).sum();
     char_budget = char_budget.saturating_sub(header_len);
 
-    // 3. Audio transcriptions — always include if available (~1500 chars budget)
+    // 5. Audio transcriptions — always include if available (~1500 chars budget)
     let audio_budget = char_budget / 3;
     let audio = fetch_audio_snippets().await;
     if !audio.is_empty() {
@@ -1375,8 +1467,10 @@ async fn build_activity_context(apps: &[AppActivity], windows: &[WindowActivity]
         char_budget = char_budget.saturating_sub(used);
     }
 
-    // 4. Screen content: prefer accessibility (structured) over OCR (noisy)
+    // 6. Screen content: prefer accessibility (structured) over OCR (noisy)
+    //    Also extract URLs from the text content for workflow analysis.
     let has_accessibility = count_accessibility_rows().await > 5;
+    let mut all_screen_text = String::new();
 
     if has_accessibility {
         let snippets = fetch_accessibility_snippets().await;
@@ -1391,8 +1485,11 @@ async fn build_activity_context(apps: &[AppActivity], windows: &[WindowActivity]
                     break;
                 }
                 used += line.len() + 1;
+                all_screen_text.push_str(&text);
+                all_screen_text.push(' ');
                 parts.push(line);
             }
+            char_budget = char_budget.saturating_sub(used);
             debug!(
                 "suggestions: using accessibility data ({} snippets)",
                 snippets.len()
@@ -1409,12 +1506,31 @@ async fn build_activity_context(apps: &[AppActivity], windows: &[WindowActivity]
                     break;
                 }
                 used += line.len() + 1;
+                all_screen_text.push_str(s);
+                all_screen_text.push(' ');
                 parts.push(line);
             }
+            char_budget = char_budget.saturating_sub(used);
             info!(
                 "suggestions: using OCR data ({} snippets, no accessibility available)",
                 snippets.len()
             );
+        }
+    }
+
+    // 7. URLs extracted from screen content — surfaces sites for workflow detection
+    let mut extracted_urls = extract_urls_from_text(&all_screen_text);
+    // Also extract from window titles
+    for w in windows {
+        for url in extract_urls_from_text(&w.window_name) {
+            extracted_urls.insert(url);
+        }
+    }
+    if !extracted_urls.is_empty() && char_budget > 200 {
+        parts.push(String::new());
+        parts.push("URLs/domains detected in screen content:".to_string());
+        for url in &extracted_urls {
+            parts.push(format!("  {}", url));
         }
     }
 
