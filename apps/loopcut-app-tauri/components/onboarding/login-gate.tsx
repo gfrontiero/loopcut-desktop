@@ -225,42 +225,19 @@ function useButtonCanvas(
 
 // ─── component ───────────────────────────────────────────
 const OnboardingLogin: React.FC<OnboardingLoginProps> = ({ handleNextSlide }) => {
-  const { settings } = useSettings();
   const hasAdvanced = useRef(false);
-  const [showSkip, setShowSkip] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const bgRef = useRef<HTMLCanvasElement>(null);
-  const btnRef = useRef<HTMLCanvasElement>(null);
 
   useBackgroundCanvas(bgRef, 500, 480);
-  useButtonCanvas(btnRef, 200, 52, isHovered);
 
+  // Loopcut: local-only mode — auto-advance past login after brief branding display
   useEffect(() => {
-    const timer = setTimeout(() => setShowSkip(true), 8000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (settings.user?.token && !hasAdvanced.current) {
+    if (!hasAdvanced.current) {
       hasAdvanced.current = true;
-      posthog.capture("onboarding_login_completed");
-      setTimeout(() => handleNextSlide(), 500);
+      const timer = setTimeout(() => handleNextSlide(), 1500);
+      return () => clearTimeout(timer);
     }
-  }, [settings.user?.token, handleNextSlide]);
-
-  const handleLogin = useCallback(() => {
-    posthog.capture("onboarding_login_clicked");
-    // Open login in an in-app WebView instead of Safari so we can intercept
-    // the screenpipe:// deep-link redirect (Safari blocks custom-scheme redirects)
-    commands.openLoginWindow();
-  }, []);
-
-  const handleSkip = useCallback(() => {
-    posthog.capture("onboarding_login_skipped");
-    handleNextSlide();
   }, [handleNextSlide]);
-
-  const isLoggedIn = !!settings.user?.token;
 
   return (
     <div className="w-full flex flex-col items-center justify-center min-h-[400px] relative">
@@ -276,7 +253,6 @@ const OnboardingLogin: React.FC<OnboardingLoginProps> = ({ handleNextSlide }) =>
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        {/* Title: [screenpipe] */}
         <motion.h1
           className="text-2xl font-bold tracking-tight text-foreground mb-2"
           style={{ fontFamily: "var(--font-sans), 'Space Grotesk', system-ui, sans-serif" }}
@@ -285,88 +261,18 @@ const OnboardingLogin: React.FC<OnboardingLoginProps> = ({ handleNextSlide }) =>
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <span className="text-foreground/30 font-light">[</span>
-          screenpipe
+          Loopcut
           <span className="text-foreground/30 font-light">]</span>
         </motion.h1>
 
-        {/* Tagline */}
         <motion.p
           className="font-mono text-[10px] tracking-[0.3em] uppercase text-muted-foreground/50 mb-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
-          ai finally knows what you&apos;re doing
+          find and automate your repetitive workflows
         </motion.p>
-
-        {isLoggedIn ? (
-          <motion.div
-            className="flex flex-col items-center gap-3"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <span className="font-mono text-xs text-foreground/80">
-              ✓ signed in as {settings.user?.email || "user"}
-            </span>
-          </motion.div>
-        ) : (
-          <>
-            {/* Button with internal geometry canvas */}
-            <motion.button
-              onClick={handleLogin}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              className="relative overflow-hidden border border-foreground/70 bg-transparent hover:bg-foreground transition-colors duration-150 group"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.7 }}
-              whileTap={{ scale: 0.97 }}
-              style={{ width: 200, height: 52 }}
-            >
-              {/* Geometry canvas inside button */}
-              <canvas
-                ref={btnRef}
-                className="absolute inset-0 pointer-events-none"
-                style={{ width: 200, height: 52 }}
-              />
-
-              {/* Text */}
-              <span className="relative z-10 font-mono text-sm tracking-[0.25em] uppercase font-medium text-foreground group-hover:text-background transition-colors duration-150">
-                sign in
-              </span>
-
-              {/* Corner marks */}
-              <span className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-foreground/30 group-hover:border-background/30 transition-colors duration-150" />
-              <span className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-foreground/30 group-hover:border-background/30 transition-colors duration-150" />
-              <span className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-foreground/30 group-hover:border-background/30 transition-colors duration-150" />
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-foreground/30 group-hover:border-background/30 transition-colors duration-150" />
-            </motion.button>
-
-            {/* Benefit */}
-            <motion.p
-              className="font-mono text-[10px] text-muted-foreground/40 mt-6 tracking-wide"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
-            >
-              free access to claude haiku &amp; cloud transcription
-            </motion.p>
-          </>
-        )}
-
-        <AnimatePresence>
-          {showSkip && !isLoggedIn && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 2 }}
-              onClick={handleSkip}
-              className="font-mono text-[9px] text-muted-foreground/25 hover:text-muted-foreground/45 transition-colors mt-8 tracking-wide"
-            >
-              skip
-            </motion.button>
-          )}
-        </AnimatePresence>
       </motion.div>
     </div>
   );

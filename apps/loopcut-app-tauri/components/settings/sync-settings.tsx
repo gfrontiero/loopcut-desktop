@@ -195,7 +195,7 @@ function SyncOnboarding({ onSubscribe, onRefresh, isLoading, isRefreshing, isLog
         <CloudSyncAnimation />
         <h3 className="text-xl font-semibold mt-4">Cloud Sync</h3>
         <p className="text-sm text-muted-foreground mt-2">
-          Sync your Screenpipe data across all your devices with end-to-end encryption
+          Sync your Loopcut data across all your devices with end-to-end encryption
         </p>
       </div>
 
@@ -653,7 +653,7 @@ function ActiveSyncSettings({
                   <Laptop className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p>This is your first synced device</p>
                   <p className="text-xs mt-1">
-                    Install Screenpipe on another device and log in with the same account to see it here
+                    Install Loopcut on another device to see it here
                   </p>
                 </div>
               </Card>

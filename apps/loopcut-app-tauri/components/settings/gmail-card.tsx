@@ -153,7 +153,7 @@ export function GmailCard() {
                   <Lock className="h-3 w-3" />pro required
                 </Button>
                 <button
-                  onClick={() => openUrl("https://screenpi.pe/onboarding")}
+                  onClick={() => openUrl("https://loopcut.co/onboarding")}
                   className="text-[10px] text-muted-foreground hover:text-foreground underline"
                 >
                   upgrade to pro to connect

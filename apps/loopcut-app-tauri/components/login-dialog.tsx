@@ -11,31 +11,8 @@ import { create } from "zustand";
 import { commands } from "@/lib/utils/tauri";
 
 export function LoginDialog() {
-  const { isOpen, setIsOpen } = useLoginDialog();
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>login required</DialogTitle>
-          <DialogDescription>
-            please login to continue. you will be redirected to screenpi.pe
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex justify-end">
-          <Button
-            variant="default"
-            onClick={() => {
-              commands.openLoginWindow();
-              setIsOpen(false);
-            }}
-          >
-            login <ExternalLinkIcon className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+  // Loopcut: local-only mode — login dialog disabled
+  return null;
 }
 
 interface LoginDialogState {
@@ -47,13 +24,8 @@ interface LoginDialogState {
 export const useLoginDialog = create<LoginDialogState>((set) => ({
   isOpen: false,
   setIsOpen: (open) => set({ isOpen: open }),
-  checkLogin: (user, showDialog = true) => {
-    if (!user?.token) {
-      if (showDialog) {
-        set({ isOpen: true });
-      }
-      return false;
-    }
+  checkLogin: (_user, _showDialog = true) => {
+    // Loopcut: local-only mode — always return true (no login required)
     return true;
   },
 }));

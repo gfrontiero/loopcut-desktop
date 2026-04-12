@@ -105,7 +105,7 @@ function buildDailyLimitMessage(errorStr: string): string {
     } else if (tier === "logged_in") {
       return "You've used your free queries for today. Switch to a free model (Qwen3 Coder, Gemini Flash) for unlimited usage, or upgrade to Pro.";
     } else {
-      return "You've used your free queries for today. Sign in for more, or switch to a free model (Qwen3 Coder, Gemini Flash).";
+      return "You've used your free queries for today. Switch to a free model (Qwen3 Coder, Gemini Flash).";
     }
   } catch {
     return "You've reached your daily limit. Try a free model like Qwen3 Coder or Gemini Flash.";
@@ -126,7 +126,7 @@ function buildSystemPrompt(): string {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const offsetStr = getTimezoneOffsetString();
 
-  return `You are a helpful AI assistant that can search through the user's Screenpipe data - their screen recordings, audio transcriptions, and UI interactions.
+  return `You are a helpful AI assistant that can search through the user's Loopcut data - their screen recordings, audio transcriptions, and UI interactions.
 
 BEHAVIOR RULES:
 - Act immediately on clear requests. NEVER ask for confirmation when the user's intent is obvious.
@@ -1528,9 +1528,9 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
   // All providers now route through Pi — isPi is always true when we have a preset
   const isPi = true;
   const hasValidModel = activePreset?.model && activePreset.model.trim() !== "";
-  const needsLogin = activePreset?.provider === "screenpipe-cloud" && !settings.user?.token;
+  const needsLogin = false; // Loopcut: local-only mode — no login required
   // Pi auto-starts on first message, so don't block chat when Pi is not running
-  const canChat = hasPresets && hasValidModel && !needsLogin && !piStarting;
+  const canChat = hasPresets && hasValidModel && !piStarting;
 
   const getDisabledReason = (): string | null => {
     if (!hasPresets) return "No AI presets configured";

@@ -43,10 +43,10 @@ export function FeedbackSection() {
               </div>
             </div>
             <button
-              onClick={() => open("https://screenpi.pe/ideas")}
+              onClick={() => open("https://loopcut.co/ideas")}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors duration-150"
             >
-              screenpi.pe/ideas →
+              loopcut.co/ideas →
             </button>
           </div>
         </div>
@@ -79,10 +79,10 @@ export function FeedbackSection() {
               </div>
             </div>
             <button
-              onClick={() => open("https://screenpi.pe/changelog")}
+              onClick={() => open("https://loopcut.co/changelog")}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors duration-150"
             >
-              screenpi.pe/changelog →
+              loopcut.co/changelog →
             </button>
           </div>
         </div>

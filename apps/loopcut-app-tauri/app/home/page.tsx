@@ -516,7 +516,7 @@ function HomeContent() {
                     <X className="h-3.5 w-3.5" />
                   </button>
                   <h3 className={cn("text-sm font-medium", isTranslucent ? "vibrant-heading" : "text-foreground")}>
-                    Add your team to screenpipe
+                    Add your team to Loopcut
                   </h3>
                   <p className={cn("text-xs mt-1", isTranslucent ? "vibrant-sidebar-fg-muted" : "text-muted-foreground")}>
                     Push pipe configs and content filters to all members.
