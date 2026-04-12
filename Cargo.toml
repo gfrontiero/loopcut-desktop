@@ -2,7 +2,7 @@
 members = [
     "crates/*",
 ]
-exclude = ["apps/screenpipe-app-tauri/src-tauri", "crates/loopcut-integrations"]
+exclude = ["apps/loopcut-app-tauri/src-tauri", "crates/loopcut-integrations"]
 resolver = "2"
 
 [workspace.package]
