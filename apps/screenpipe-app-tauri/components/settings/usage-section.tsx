@@ -309,7 +309,7 @@ export function UsageSection() {
       case "screenpipe-cloud":
       case "screenpipe":
       case "pi":
-        return "Screenpipe Cloud";
+        return "Loopcut Cloud";
       case "native-ollama":
       case "ollama":
         return "Ollama";

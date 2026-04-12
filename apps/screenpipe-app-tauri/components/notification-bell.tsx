@@ -305,7 +305,7 @@ export function NotificationBell() {
                           });
                           setOpen(false);
                           showChatWithPrefill({
-                            context: `notification from ${entry.pipe_name || "screenpipe"}:\n\n**${entry.title}**\n${entry.body}`,
+                            context: `notification from ${entry.pipe_name || "Loopcut"}:\n\n**${entry.title}**\n${entry.body}`,
                             prompt: `tell me more about this: "${entry.title}"`,
                             autoSend: true,
                             source: `notification-bell-${entry.id}`,

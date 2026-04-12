@@ -555,7 +555,7 @@ export function AudioTranscript({
 			`${label} from ${startLocal} to ${endLocal}${ongoingNote}`,
 			speakers ? `participants: ${speakers}` : "",
 			`segments: ${data.items.length}`,
-			`use screenpipe search API with content_type=audio, start_time=${startUtc}, end_time=${endUtc} to fetch the transcript`,
+			`use Loopcut search API with content_type=audio, start_time=${startUtc}, end_time=${endUtc} to fetch the transcript`,
 		].filter(Boolean).join("\n");
 
 		const meetingPipe = templatePipes.find((p) => p.name === "meeting-summary");

@@ -24,7 +24,7 @@ export const FALLBACK_TEMPLATES: TemplatePipe[] = [
     description: "Analyze your habits and suggest pipes to automate your workflow",
     icon: "\u26A1",
     featured: true,
-    prompt: `<role>You are a screenpipe automation expert. Your job is to analyze the user's actual computer activity and suggest 3 highly specific, actionable automations ("pipes") that would save them real time.</role>
+    prompt: `<role>You are a Loopcut automation expert. Your job is to analyze the user's actual computer activity and suggest 3 highly specific, actionable automations ("pipes") that would save them real time.</role>
 
 <instructions>
 Follow these steps exactly. Do not skip any step.

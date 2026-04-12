@@ -357,7 +357,7 @@ export function TeamSection() {
           <Users className="h-10 w-10 text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-1">Sign in to use teams</h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Team features require a Screenpipe account
+            Team features require a Loopcut account
           </p>
           <Button
             className="w-full max-w-xs"
@@ -455,7 +455,7 @@ export function TeamSection() {
         <Card className="p-6">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h3 className="text-lg font-semibold">Bring your team to Screenpipe</h3>
+              <h3 className="text-lg font-semibold">Bring your team to Loopcut</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 add your team and push pipe configurations and content filters to all members.
                 everything is end-to-end encrypted — the server never sees your configs.

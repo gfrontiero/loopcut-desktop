@@ -342,7 +342,7 @@ export function MeetingsSection() {
     if (meeting.attendees) parts.push(`attendees: ${meeting.attendees}`);
     if (meeting.note) parts.push(`notes: ${meeting.note}`);
 
-    const prompt = `search screenpipe for what happened during this meeting and summarize it: key topics, decisions, action items. then suggest which of my connected integrations would be useful to share this with and draft a message for each.\n\nmeeting:\n${parts.join("\n")}`;
+    const prompt = `search Loopcut for what happened during this meeting and summarize it: key topics, decisions, action items. then suggest which of my connected integrations would be useful to share this with and draft a message for each.\n\nmeeting:\n${parts.join("\n")}`;
 
     showChatWithPrefill({
       context: "",

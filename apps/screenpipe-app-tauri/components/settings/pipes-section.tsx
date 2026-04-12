@@ -232,7 +232,7 @@ function humanizeSchedule(schedule: string | undefined): string {
 
 function buildOptimizePrompt(pipeName: string): string {
   const sessionDir = `~/.pi/agent/sessions/`;
-  return `i need help optimizing my screenpipe pipe "${pipeName}".
+  return `i need help optimizing my Loopcut pipe "${pipeName}".
 
 ## your task
 

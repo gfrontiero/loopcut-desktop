@@ -114,7 +114,7 @@ export function SchedulePromptDialog({
     const userRequest = [
       `Create a pipe called "${name}" with schedule: ${schedule}`,
       ``,
-      `The pipe should run this prompt against my screenpipe data:`,
+      `The pipe should run this prompt against my Loopcut data:`,
       ``,
       originalPrompt.slice(0, 2000),
       ``,

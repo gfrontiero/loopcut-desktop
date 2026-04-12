@@ -278,8 +278,8 @@ function HomeContent() {
     if (isSectionHidden(activeSection) && activeSection !== "help") {
       return (
         <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-          <img src="/128x128.png" alt="screenpipe" className="w-16 h-16 opacity-30 mb-4" />
-          <p className="text-sm font-mono">screenpipe</p>
+          <img src="/128x128.png" alt="Loopcut" className="w-16 h-16 opacity-30 mb-4" />
+          <p className="text-sm font-mono">Loopcut</p>
         </div>
       );
     }
@@ -297,8 +297,8 @@ function HomeContent() {
       default:
         return (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            <img src="/128x128.png" alt="screenpipe" className="w-16 h-16 opacity-30 mb-4" />
-            <p className="text-sm font-mono">screenpipe</p>
+            <img src="/128x128.png" alt="Loopcut" className="w-16 h-16 opacity-30 mb-4" />
+            <p className="text-sm font-mono">Loopcut</p>
           </div>
         );
     }
@@ -346,7 +346,7 @@ function HomeContent() {
             <div className={cn(isTranslucent ? "vibrant-sidebar-border" : "", "border-b", sidebarCollapsed ? "px-2 py-3" : "px-4 py-3")}>
               {/* Row 1: name + phone + collapse */}
               <div className={cn("flex items-center", sidebarCollapsed ? "justify-center" : "justify-between")}>
-                {!sidebarCollapsed && <h1 className={cn("text-lg font-bold", isTranslucent ? "vibrant-heading" : "text-foreground")}>screenpipe</h1>}
+                {!sidebarCollapsed && <h1 className={cn("text-lg font-bold", isTranslucent ? "vibrant-heading" : "text-foreground")}>Loopcut</h1>}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button

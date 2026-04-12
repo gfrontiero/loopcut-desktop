@@ -62,7 +62,7 @@ const getDebuggingCommands = (os: string | null, dataDir: string) => {
     (os === "windows"
       ? `\n\n# We highly recommend adding --ocr-engine windows-native to your command.\n# This will use a very experimental but powerful engine to extract text from your screen instead of the default one.\n# Example: screenpipe --data-dir ${dataDir} --ocr-engine windows-native\n`
       : "") +
-    "\n\n# 5. If you've already started Screenpipe, try these debugging commands:\n";
+    "\n\n# 5. If you've already started Loopcut, try these debugging commands:\n";
 
   if (os === "windows") {
     return (
@@ -120,7 +120,7 @@ export const DevModeSettings = ({ localDataDir }: { localDataDir: string }) => {
   const handleStartScreenpipe = async () => {
     setIsLoading(true);
     const toastId = toast({
-      title: "starting screenpipe",
+      title: "starting Loopcut",
       description: "please wait...",
       duration: Infinity,
     });
@@ -129,16 +129,16 @@ export const DevModeSettings = ({ localDataDir }: { localDataDir: string }) => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       toastId.update({
         id: toastId.id,
-        title: "screenpipe started",
-        description: "screenpipe is now running.",
+        title: "Loopcut started",
+        description: "Loopcut is now running.",
         duration: 3000,
       });
     } catch (error) {
-      console.error("failed to start screenpipe:", error);
+      console.error("failed to start Loopcut:", error);
       toastId.update({
         id: toastId.id,
         title: "error",
-        description: "failed to start screenpipe.",
+        description: "failed to start Loopcut.",
         variant: "destructive",
         duration: 3000,
       });
@@ -151,7 +151,7 @@ export const DevModeSettings = ({ localDataDir }: { localDataDir: string }) => {
   const handleStopScreenpipe = async () => {
     setIsLoading(true);
     const toastId = toast({
-      title: "stopping screenpipe",
+      title: "stopping Loopcut",
       description: "please wait...",
       duration: Infinity,
     });
@@ -160,16 +160,16 @@ export const DevModeSettings = ({ localDataDir }: { localDataDir: string }) => {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       toastId.update({
         id: toastId.id,
-        title: "screenpipe stopped",
-        description: "screenpipe is now stopped.",
+        title: "Loopcut stopped",
+        description: "Loopcut is now stopped.",
         duration: 3000,
       });
     } catch (error) {
-      console.error("failed to stop screenpipe:", error);
+      console.error("failed to stop Loopcut:", error);
       toastId.update({
         id: toastId.id,
         title: "error",
-        description: "failed to stop screenpipe.",
+        description: "failed to stop Loopcut.",
         variant: "destructive",
         duration: 3000,
       });
@@ -242,7 +242,7 @@ export const DevModeSettings = ({ localDataDir }: { localDataDir: string }) => {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>stop screenpipe backend</p>
+                          <p>stop Loopcut backend</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -261,7 +261,7 @@ export const DevModeSettings = ({ localDataDir }: { localDataDir: string }) => {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>start screenpipe recording</p>
+                          <p>start Loopcut recording</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -270,7 +270,7 @@ export const DevModeSettings = ({ localDataDir }: { localDataDir: string }) => {
               </CardContent>
               <CardFooter className="flex flex-col items-center">
                 <p className="text-sm text-muted-foreground">
-                  manually start or stop screenpipe recording
+                  manually start or stop Loopcut recording
                 </p>
                 <p className="text-xs text-muted-foreground">
                   (auto started when dev mode is off)
