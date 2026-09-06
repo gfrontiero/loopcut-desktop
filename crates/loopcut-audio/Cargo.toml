@@ -150,7 +150,7 @@ parakeet-mlx = ["dep:audiopipe", "audiopipe?/parakeet-mlx", "dep:mlx-rs"]
 
 [[example]]
 name = "loopcut-audio"
-path = "examples/loopcut-audio.rs"
+path = "examples/screenpipe-audio.rs"
 
 [[test]]
 name = "audio_pipeline_benchmark"

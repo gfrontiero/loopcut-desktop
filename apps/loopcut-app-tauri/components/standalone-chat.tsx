@@ -47,6 +47,8 @@ import {
 import { useAutoSuggestions } from "@/lib/hooks/use-auto-suggestions";
 import { SummaryCards } from "@/components/chat/summary-cards";
 import { type CustomTemplate } from "@/lib/summary-templates";
+import { AUDIT_REPORT_INSTRUCTIONS, prepareAutomationAudit, type AuditEvidence } from "@/lib/automation-audit";
+import { completeAutomationAudit } from "@/lib/automation-audit-report";
 import { usePipes } from "@/lib/hooks/use-pipes";
 
 const SCREENPIPE_API = "http://localhost:3030";
@@ -993,6 +995,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
   const followUpAbortRef = useRef<AbortController | null>(null);
   const followUpFiredRef = useRef(false);
   const lastUserMessageRef = useRef<string>("");
+  const auditInFlightRef = useRef<{ messageId: string; evidence: AuditEvidence; raw: string; rejected: boolean } | null>(null);
 
   // Ref to sendMessage so useEffect callbacks can call it without stale closures
   const sendMessageRef = useRef<(msg: string) => Promise<void>>();
@@ -1553,6 +1556,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
       if (e.key === "Escape" && !showMentionDropdown) {
         if (isLoading || isStreaming) {
           // Stop the agent
+          if (auditInFlightRef.current) auditInFlightRef.current.rejected = true;
           try {
             await commands.piAbort(piSessionIdRef.current);
           } catch (err) {
@@ -1685,6 +1689,25 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
 
     // Shared handler for Pi event data — used by both pi_event and pipe_event
     const handlePiEventData = (data: any) => {
+        const audit = auditInFlightRef.current?.messageId === piMessageIdRef.current ? auditInFlightRef.current : null;
+        // Keep the proposal private until the application validates and renders it.
+        if (audit && data.type === "message_update") {
+          const event = data.assistantMessageEvent;
+          if (event?.type === "text_delta" && typeof event.delta === "string") {
+            audit.raw += event.delta;
+            if (audit.raw.length > 8000 && !audit.rejected) {
+              audit.rejected = true;
+              commands.piAbort(piSessionIdRef.current).catch(() => {});
+            }
+          }
+          return;
+        }
+        if (audit && data.type === "tool_execution_start") {
+          audit.rejected = true;
+          commands.piAbort(piSessionIdRef.current).catch(() => {});
+          return;
+        }
+        if (audit && data.type === "tool_execution_end") return;
 
         if (data.type === "message_update" && data.assistantMessageEvent) {
           const evt = data.assistantMessageEvent;
@@ -1960,6 +1983,14 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
               } else {
                 content = `Error: ${errStr}`;
               }
+            }
+
+            if (audit) {
+              const report = completeAutomationAudit(audit.evidence, audit.rejected || agentEndError ? "" : audit.raw || content);
+              content = report.markdown;
+              piStreamingTextRef.current = content;
+              piContentBlocksRef.current = [{ type: "text", text: content }];
+              auditInFlightRef.current = null;
             }
 
             // Snapshot refs BEFORE setMessages — React's batching may defer the
@@ -2529,7 +2560,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
   }
 
   // Send message using Pi agent
-  async function sendPiMessage(userMessage: string, displayLabel?: string) {
+  async function sendPiMessage(userMessage: string, displayLabel?: string, auditEvidence?: AuditEvidence) {
     // Auto-start Pi if it's not running yet (new session or crash recovery)
     if (!piInfo?.running) {
       if (piStartInFlightRef.current) {
@@ -2603,6 +2634,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
 
     piStreamingTextRef.current = "";
     piMessageIdRef.current = assistantMessageId;
+    auditInFlightRef.current = auditEvidence ? { messageId: assistantMessageId, evidence: auditEvidence, raw: "", rejected: false } : null;
     piContentBlocksRef.current = [];
     setStreamedCharCount(0);
 
@@ -2687,7 +2719,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
 
       // If Pi's session is out of sync (restart, conversation load), inject history
       let promptMessage = userMessage;
-      if (!piSessionSyncedRef.current && messages.length > 0) {
+      if (!auditEvidence && !piSessionSyncedRef.current && messages.length > 0) {
         const historyLines = messages
           .slice(-40)
           .map(m => {
@@ -2854,11 +2886,22 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
     }
   }
 
-  async function sendMessage(userMessage: string, displayLabel?: string) {
+  async function sendMessage(userMessage: string, displayLabel?: string, auditEvidence?: AuditEvidence) {
     if ((!canChat && !autoSendBypassRef.current) || (!activePreset && !autoSendBypassRef.current)) return;
 
+    // Retry buttons and the prompt selector must use the same evidence/report gate.
+    if (!auditEvidence && userMessage.startsWith(AUDIT_REPORT_INSTRUCTIONS)) {
+      const prepared = await prepareAutomationAudit();
+      if (prepared.status !== "ready") {
+        toast({ title: "Automation audit", description: prepared.message });
+        return;
+      }
+      userMessage = prepared.prompt;
+      auditEvidence = prepared.evidence;
+    }
+
     // All providers route through Pi agent
-    return sendPiMessage(userMessage, displayLabel);
+    return sendPiMessage(userMessage, displayLabel, auditEvidence);
   }
 
   // Keep ref in sync so useEffect callbacks can call sendMessage
@@ -2926,6 +2969,7 @@ export function StandaloneChat({ className }: { className?: string } = {}) {
   };
 
   const handleStop = async () => {
+    if (auditInFlightRef.current) auditInFlightRef.current.rejected = true;
     try {
       await commands.piAbort(piSessionIdRef.current);
     } catch (e) {

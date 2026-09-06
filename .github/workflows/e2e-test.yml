@@ -63,11 +63,11 @@ jobs:
       uses: actions/cache@v4
       with:
         path: |
-          apps/screenpipe-app-tauri/src-tauri/ffmpeg
-          apps/screenpipe-app-tauri/src-tauri/vcredist
-          apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
-          apps/screenpipe-app-tauri/src-tauri/bun-x86_64-pc-windows-msvc.exe
-        key: Windows-e2e-artifacts-v2-${{ hashFiles('apps/screenpipe-app-tauri/scripts/pre_build.js') }}
+          apps/loopcut-app-tauri/src-tauri/ffmpeg
+          apps/loopcut-app-tauri/src-tauri/vcredist
+          apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
+          apps/loopcut-app-tauri/src-tauri/bun-x86_64-pc-windows-msvc.exe
+        key: Windows-e2e-artifacts-v2-${{ hashFiles('apps/loopcut-app-tauri/scripts/pre_build.js') }}
         restore-keys: |
           Windows-e2e-artifacts-v2-
 
@@ -91,7 +91,7 @@ jobs:
     - name: Rust cache
       uses: Swatinem/rust-cache@v2
       with:
-        workspaces: apps/screenpipe-app-tauri/src-tauri
+        workspaces: apps/loopcut-app-tauri/src-tauri
         shared-key: screenpipe-tauri-e2e
 
     - name: Configure Bun cache on same drive as workspace (Windows perf fix)
@@ -102,18 +102,18 @@ jobs:
         echo "BUN_INSTALL_GLOBAL_DIR=${drive}:/bun-global" >> $env:GITHUB_ENV
 
     - name: Install frontend dependencies
-      working-directory: ./apps/screenpipe-app-tauri
+      working-directory: ./apps/loopcut-app-tauri
       run: bun install --frozen-lockfile
 
     - name: Download ONNX Runtime (CPU) for Windows
       shell: pwsh
       run: |
         $url = "https://github.com/microsoft/onnxruntime/releases/download/v1.19.2/onnxruntime-win-x64-1.19.2.zip"
-        $tauriDir = "apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2"
+        $tauriDir = "apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2"
         $ortDir = "ort-system-lib"
         Invoke-WebRequest -Uri $url -OutFile "onnxruntime-win-x64-1.19.2.zip"
         if (Test-Path $tauriDir) { Remove-Item $tauriDir -Recurse -Force }
-        7z x onnxruntime-win-x64-1.19.2.zip -o"apps/screenpipe-app-tauri/src-tauri/" -y
+        7z x onnxruntime-win-x64-1.19.2.zip -o"apps/loopcut-app-tauri/src-tauri/" -y
         if (Test-Path $ortDir) { Remove-Item $ortDir -Recurse -Force }
         Copy-Item -Path $tauriDir -Destination $ortDir -Recurse -Force
 
@@ -126,23 +126,23 @@ jobs:
     - name: Cache Next.js build
       uses: actions/cache@v4
       with:
-        path: ./apps/screenpipe-app-tauri/.next
-        key: ${{ runner.os }}-next-v2-${{ hashFiles('apps/screenpipe-app-tauri/package.json', 'apps/screenpipe-app-tauri/bun.lock', 'apps/screenpipe-app-tauri/next.config.mjs', 'apps/screenpipe-app-tauri/postcss.config.mjs', 'apps/screenpipe-app-tauri/app/**', 'apps/screenpipe-app-tauri/components/**', 'apps/screenpipe-app-tauri/lib/**', 'apps/screenpipe-app-tauri/styles/**') }}
+        path: ./apps/loopcut-app-tauri/.next
+        key: ${{ runner.os }}-next-v2-${{ hashFiles('apps/loopcut-app-tauri/package.json', 'apps/loopcut-app-tauri/bun.lock', 'apps/loopcut-app-tauri/next.config.mjs', 'apps/loopcut-app-tauri/postcss.config.mjs', 'apps/loopcut-app-tauri/app/**', 'apps/loopcut-app-tauri/components/**', 'apps/loopcut-app-tauri/lib/**', 'apps/loopcut-app-tauri/styles/**') }}
         restore-keys: |
           ${{ runner.os }}-next-v2-
 
     - name: Build
       uses: tauri-apps/tauri-action@v0.5.17
       env:
-        OPENBLAS_PATH: ${{ github.workspace }}/apps/screenpipe-app-tauri/src-tauri/openblas
+        OPENBLAS_PATH: ${{ github.workspace }}/apps/loopcut-app-tauri/src-tauri/openblas
       with:
         args: "--no-sign --debug --no-bundle -- --features e2e"
-        projectPath: "./apps/screenpipe-app-tauri"
+        projectPath: "./apps/loopcut-app-tauri"
         tauriScript: bunx tauri -v
 
     - name: Run E2E Tests
       shell: pwsh
-      working-directory: ./apps/screenpipe-app-tauri
+      working-directory: ./apps/loopcut-app-tauri
       env:
         RECORD_VIDEO: "true"
       run: |
@@ -154,8 +154,8 @@ jobs:
       with:
         name: windows-e2e-test-artifacts
         path: |
-          ./apps/screenpipe-app-tauri/e2e/videos
-          ./apps/screenpipe-app-tauri/e2e/screenshots
+          ./apps/loopcut-app-tauri/e2e/videos
+          ./apps/loopcut-app-tauri/e2e/screenshots
 
     - name: Upload Screenpipe data
       uses: actions/upload-artifact@v4
@@ -163,7 +163,7 @@ jobs:
       with:
         name: windows-screenpipe-data
         include-hidden-files: true
-        path: ./apps/screenpipe-app-tauri/.e2e
+        path: ./apps/loopcut-app-tauri/.e2e
 
   linux-e2e-test:
     name: Linux E2E Tests
@@ -181,7 +181,7 @@ jobs:
     - name: Cache and install all Linux dependencies
       uses: awalsh128/cache-apt-pkgs-action@v1.6.0
       with:
-        version: ${{ hashFiles('apps/screenpipe-app-tauri/scripts/pre_build.js') }}
+        version: ${{ hashFiles('apps/loopcut-app-tauri/scripts/pre_build.js') }}
         packages: >
           tesseract-ocr libtesseract-dev ffmpeg pkg-config build-essential libglib2.0-dev
           libgtk-3-dev libwebkit2gtk-4.1-dev clang cmake
@@ -238,29 +238,29 @@ jobs:
     - name: Rust cache
       uses: Swatinem/rust-cache@v2
       with:
-        workspaces: apps/screenpipe-app-tauri/src-tauri
+        workspaces: apps/loopcut-app-tauri/src-tauri
         shared-key: screenpipe-tauri-e2e
 
     - name: Install frontend dependencies
-      working-directory: ./apps/screenpipe-app-tauri
+      working-directory: ./apps/loopcut-app-tauri
       run: bun install --frozen-lockfile
 
     - name: Cache Linux build artifacts
       uses: actions/cache@v4
       with:
         path: |
-          apps/screenpipe-app-tauri/src-tauri/ffmpeg
-          apps/screenpipe-app-tauri/src-tauri/tesseract
-          apps/screenpipe-app-tauri/src-tauri/bun-x86_64-unknown-linux-gnu
-        key: Linux-e2e-artifacts-v2-${{ hashFiles('apps/screenpipe-app-tauri/scripts/pre_build.js') }}
+          apps/loopcut-app-tauri/src-tauri/ffmpeg
+          apps/loopcut-app-tauri/src-tauri/tesseract
+          apps/loopcut-app-tauri/src-tauri/bun-x86_64-unknown-linux-gnu
+        key: Linux-e2e-artifacts-v2-${{ hashFiles('apps/loopcut-app-tauri/scripts/pre_build.js') }}
         restore-keys: |
           Linux-e2e-artifacts-v2-
 
     - name: Cache Next.js build
       uses: actions/cache@v4
       with:
-        path: ./apps/screenpipe-app-tauri/.next
-        key: ${{ runner.os }}-next-v2-${{ hashFiles('apps/screenpipe-app-tauri/package.json', 'apps/screenpipe-app-tauri/bun.lock', 'apps/screenpipe-app-tauri/next.config.mjs', 'apps/screenpipe-app-tauri/postcss.config.mjs', 'apps/screenpipe-app-tauri/app/**', 'apps/screenpipe-app-tauri/components/**', 'apps/screenpipe-app-tauri/lib/**', 'apps/screenpipe-app-tauri/styles/**') }}
+        path: ./apps/loopcut-app-tauri/.next
+        key: ${{ runner.os }}-next-v2-${{ hashFiles('apps/loopcut-app-tauri/package.json', 'apps/loopcut-app-tauri/bun.lock', 'apps/loopcut-app-tauri/next.config.mjs', 'apps/loopcut-app-tauri/postcss.config.mjs', 'apps/loopcut-app-tauri/app/**', 'apps/loopcut-app-tauri/components/**', 'apps/loopcut-app-tauri/lib/**', 'apps/loopcut-app-tauri/styles/**') }}
         restore-keys: |
           ${{ runner.os }}-next-v2-
 
@@ -270,7 +270,7 @@ jobs:
         OPENBLAS_PATH: ${{ env.OPENBLAS_PATH }}
       with:
         args: "--no-sign --debug --no-bundle -- --features e2e"
-        projectPath: "./apps/screenpipe-app-tauri"
+        projectPath: "./apps/loopcut-app-tauri"
         tauriScript: bunx tauri -v
 
     - name: Set up virtual display with window manager
@@ -281,7 +281,7 @@ jobs:
 
     - name: Run E2E Tests
       shell: bash
-      working-directory: ./apps/screenpipe-app-tauri
+      working-directory: ./apps/loopcut-app-tauri
       run: |
         export XDG_RUNTIME_DIR=/run/user/$(id -u)
         export XDG_CONFIG_HOME="$HOME/.config"
@@ -299,8 +299,8 @@ jobs:
       with:
         name: linux-e2e-test-artifacts
         path: |
-          ./apps/screenpipe-app-tauri/e2e/videos
-          ./apps/screenpipe-app-tauri/e2e/screenshots
+          ./apps/loopcut-app-tauri/e2e/videos
+          ./apps/loopcut-app-tauri/e2e/screenshots
 
     - name: Upload Screenpipe data
       uses: actions/upload-artifact@v4
@@ -308,7 +308,7 @@ jobs:
       with:
         name: linux-screenpipe-data
         include-hidden-files: true
-        path: ./apps/screenpipe-app-tauri/.e2e
+        path: ./apps/loopcut-app-tauri/.e2e
 
   macos-e2e-test:
     name: macOS E2E Tests
@@ -341,31 +341,31 @@ jobs:
     - name: Rust cache
       uses: Swatinem/rust-cache@v2
       with:
-        workspaces: apps/screenpipe-app-tauri/src-tauri
+        workspaces: apps/loopcut-app-tauri/src-tauri
         shared-key: screenpipe-tauri-e2e
 
     - name: Cache macOS build artifacts
       uses: actions/cache@v4
       with:
         path: |
-          apps/screenpipe-app-tauri/src-tauri/ffmpeg-aarch64-apple-darwin
-          apps/screenpipe-app-tauri/src-tauri/ffprobe-aarch64-apple-darwin
-          apps/screenpipe-app-tauri/src-tauri/bun-aarch64-apple-darwin
-          apps/screenpipe-app-tauri/src-tauri/bun-x86_64-apple-darwin
-        key: macOS-e2e-artifacts-v2-${{ hashFiles('apps/screenpipe-app-tauri/scripts/pre_build.js') }}
+          apps/loopcut-app-tauri/src-tauri/ffmpeg-aarch64-apple-darwin
+          apps/loopcut-app-tauri/src-tauri/ffprobe-aarch64-apple-darwin
+          apps/loopcut-app-tauri/src-tauri/bun-aarch64-apple-darwin
+          apps/loopcut-app-tauri/src-tauri/bun-x86_64-apple-darwin
+        key: macOS-e2e-artifacts-v2-${{ hashFiles('apps/loopcut-app-tauri/scripts/pre_build.js') }}
         restore-keys: |
           macOS-e2e-artifacts-v2-
 
     - name: Install frontend dependencies
-      working-directory: apps/screenpipe-app-tauri
+      working-directory: apps/loopcut-app-tauri
       shell: bash
       run: bun install --frozen-lockfile
 
     - name: Cache Next.js build
       uses: actions/cache@v4
       with:
-        path: ./apps/screenpipe-app-tauri/.next
-        key: ${{ runner.os }}-next-v2-${{ hashFiles('apps/screenpipe-app-tauri/package.json', 'apps/screenpipe-app-tauri/bun.lock', 'apps/screenpipe-app-tauri/next.config.mjs', 'apps/screenpipe-app-tauri/postcss.config.mjs', 'apps/screenpipe-app-tauri/app/**', 'apps/screenpipe-app-tauri/components/**', 'apps/screenpipe-app-tauri/lib/**', 'apps/screenpipe-app-tauri/styles/**') }}
+        path: ./apps/loopcut-app-tauri/.next
+        key: ${{ runner.os }}-next-v2-${{ hashFiles('apps/loopcut-app-tauri/package.json', 'apps/loopcut-app-tauri/bun.lock', 'apps/loopcut-app-tauri/next.config.mjs', 'apps/loopcut-app-tauri/postcss.config.mjs', 'apps/loopcut-app-tauri/app/**', 'apps/loopcut-app-tauri/components/**', 'apps/loopcut-app-tauri/lib/**', 'apps/loopcut-app-tauri/styles/**') }}
         restore-keys: |
           ${{ runner.os }}-next-v2-
 
@@ -373,12 +373,12 @@ jobs:
       uses: tauri-apps/tauri-action@v0.5.17
       with:
         args: "--no-sign --debug --no-bundle -- --features e2e"
-        projectPath: "./apps/screenpipe-app-tauri"
+        projectPath: "./apps/loopcut-app-tauri"
         tauriScript: bunx tauri -v
 
     - name: Run E2E Tests
       shell: bash
-      working-directory: ./apps/screenpipe-app-tauri
+      working-directory: ./apps/loopcut-app-tauri
       env:
         RECORD_VIDEO: "true"
       run: |
@@ -390,8 +390,8 @@ jobs:
       with:
         name: macos-e2e-test-artifacts
         path: |
-          ./apps/screenpipe-app-tauri/e2e/videos
-          ./apps/screenpipe-app-tauri/e2e/screenshots
+          ./apps/loopcut-app-tauri/e2e/videos
+          ./apps/loopcut-app-tauri/e2e/screenshots
 
     - name: Upload Screenpipe data
       uses: actions/upload-artifact@v4
@@ -399,4 +399,4 @@ jobs:
       with:
         name: macos-screenpipe-data
         include-hidden-files: true
-        path: ./apps/screenpipe-app-tauri/.e2e
+        path: ./apps/loopcut-app-tauri/.e2e

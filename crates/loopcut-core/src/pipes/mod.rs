@@ -3574,6 +3574,10 @@ impl PipeManager {
         #[allow(unused_mut)]
         let mut builtins = vec![
             (
+                "automate-my-work",
+                include_str!("../../assets/pipes/automate-my-work/pipe.md"),
+            ),
+            (
                 "day-recap",
                 include_str!("../../assets/pipes/day-recap/pipe.md"),
             ),

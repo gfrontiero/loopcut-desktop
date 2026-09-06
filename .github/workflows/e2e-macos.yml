@@ -46,15 +46,15 @@ jobs:
 
       - name: Build CLI
         run: |
-          cargo build --release -p screenpipe-engine
+          cargo build --release -p loopcut-engine --bin loopcut
           echo "CLI built successfully"
-          ls -la target/release/screenpipe
+          ls -la target/release/loopcut
 
       - name: Start screenpipe server
         run: |
           # Start without screen/audio recording — just the server + API
           # --disable-vision and --disable-audio to skip permission-gated features
-          ./target/release/screenpipe \
+          ./target/release/loopcut \
             --disable-vision \
             --disable-audio \
             --port 3030 &

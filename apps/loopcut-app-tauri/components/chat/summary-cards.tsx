@@ -9,11 +9,12 @@ import { ChevronDown, ChevronUp, Plus, RefreshCw } from "lucide-react";
 import { PipeAIIconLarge } from "@/components/pipe-ai-icon";
 import { type TemplatePipe } from "@/lib/hooks/use-pipes";
 import { FALLBACK_TEMPLATES, type CustomTemplate } from "@/lib/summary-templates";
+import { runAutomationAudit, type AuditEvidence } from "@/lib/automation-audit";
 import { type Suggestion } from "@/lib/hooks/use-auto-suggestions";
 import { CustomSummaryBuilder } from "./custom-summary-builder";
 
 interface SummaryCardsProps {
-  onSendMessage: (message: string, displayLabel?: string) => void;
+  onSendMessage: (message: string, displayLabel?: string, auditEvidence?: AuditEvidence) => void | Promise<void>;
   autoSuggestions: Suggestion[];
   suggestionsRefreshing?: boolean;
   onRefreshSuggestions?: () => void;
@@ -118,16 +119,42 @@ export function SummaryCards({
 }: SummaryCardsProps) {
   const [showAll, setShowAll] = useState(false);
   const [showBuilder, setShowBuilder] = useState(false);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditNotice, setAuditNotice] = useState<string | null>(null);
+  const auditRequest = useRef<AbortController | null>(null);
+
+  useEffect(() => () => { auditRequest.current?.abort(); }, []);
 
   const templates = templatePipes.length > 0 ? templatePipes : FALLBACK_TEMPLATES;
   const featured = templates.filter((t) => t.featured);
   const discover = templates.filter((t) => !t.featured);
 
-  const handleCardClick = (pipe: TemplatePipe) => {
-    onSendMessage(pipe.prompt, `${pipe.icon} ${pipe.title}`);
+  const handleCardClick = async (pipe: TemplatePipe) => {
+    if (auditRequest.current) return;
+    if (pipe.name !== "automate-my-work") {
+      onSendMessage(pipe.prompt, `${pipe.icon} ${pipe.title}`);
+      return;
+    }
+    const controller = new AbortController();
+    auditRequest.current = controller;
+    setAuditLoading(true);
+    setAuditNotice(null);
+    try {
+      const result = await runAutomationAudit(
+        (prompt, evidence) => onSendMessage(prompt, `${pipe.icon} ${pipe.title}`, evidence),
+        { signal: controller.signal },
+      );
+      if (!controller.signal.aborted && result.status !== "ready") setAuditNotice(result.message);
+    } catch {
+      if (!controller.signal.aborted) setAuditNotice("Analysis failed: the report could not be started. Try again.");
+    } finally {
+      if (!controller.signal.aborted) setAuditLoading(false);
+      if (auditRequest.current === controller) auditRequest.current = null;
+    }
   };
 
   const handleCustomTemplateClick = (template: CustomTemplate) => {
+    if (auditRequest.current) return;
     onSendMessage(template.prompt, `\u{1F4CC} ${template.title}`);
   };
 
@@ -146,6 +173,11 @@ export function SummaryCards({
         One-click summaries from your screen activity
       </p>
 
+      {(auditLoading || auditNotice) && (
+        <p role="status" aria-live="polite" className="text-[11px] text-muted-foreground border border-border/40 p-2 mb-2 w-full max-w-lg">
+          {auditLoading ? "Reviewing your recordings before writing the audit…" : auditNotice}
+        </p>
+      )}
 
       {/* Featured template cards */}
       <div className="grid grid-cols-3 gap-1.5 w-full max-w-lg mb-2">
@@ -153,6 +185,7 @@ export function SummaryCards({
           <button
             key={pipe.name}
             onClick={() => handleCardClick(pipe)}
+            disabled={auditLoading}
             className="group text-left p-2 border border-border/40 bg-muted/20 hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-150 cursor-pointer"
           >
             <div className="text-sm mb-0.5">{pipe.icon}</div>
@@ -167,6 +200,7 @@ export function SummaryCards({
         {/* Custom Summary card */}
         <button
           onClick={() => setShowBuilder(true)}
+          disabled={auditLoading}
           className="group text-left p-2 border border-dashed border-border/40 bg-muted/5 hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-150 cursor-pointer"
         >
           <div className="text-sm mb-0.5">{"\u2728"}</div>
@@ -210,6 +244,7 @@ export function SummaryCards({
             <button
               key={pipe.name}
               onClick={() => handleCardClick(pipe)}
+              disabled={auditLoading}
               className="group text-left p-2 border border-border/30 bg-muted/10 hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-150 cursor-pointer"
             >
               <div className="text-sm mb-0.5">{pipe.icon}</div>

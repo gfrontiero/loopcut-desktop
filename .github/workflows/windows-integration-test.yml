@@ -15,7 +15,7 @@ env:
 
 jobs:
   test-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
 
@@ -83,35 +83,46 @@ jobs:
       run: |
         $url = "https://github.com/microsoft/onnxruntime/releases/download/v1.19.2/onnxruntime-win-x64-1.19.2.zip"
         $zipFile = "onnxruntime-win-x64-1.19.2.zip"
-        $extractDir = "apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2"
+        $extractDir = "apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2"
         Invoke-WebRequest -Uri $url -OutFile $zipFile
         if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
-        7z x $zipFile -o"apps/screenpipe-app-tauri/src-tauri/" -y
+        7z x $zipFile -o"apps/loopcut-app-tauri/src-tauri/" -y
         Write-Host "ONNX Runtime extracted to $extractDir"
+
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: "1.3.10"
+
+    - name: Set up OpenBLAS headers and libraries
+      working-directory: apps/loopcut-app-tauri
+      run: bun scripts/setup_openblas.js
 
     - name: Build CLI
       env:
         RUSTFLAGS: "-C link-arg=/LTCG"
         ORT_STRATEGY: system
-        ORT_LIB_LOCATION: ${{ github.workspace }}/apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
+        ORT_LIB_LOCATION: ${{ github.workspace }}/apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
         # Use prebuilt NASM objects on Windows: https://aws.github.io/aws-lc-rs/requirements/windows.html#prebuilt-nasm-objects
         AWS_LC_SYS_PREBUILT_NASM: "1"
-      run: cargo build --release --target x86_64-pc-windows-msvc
+      run: cargo build --release -p loopcut-engine --bin loopcut --target x86_64-pc-windows-msvc
 
     - name: Run CLI and generate activity
       shell: pwsh
       run: |
         $env:RUST_LOG = "debug"
-        $exePath = if (Test-Path ".\target\x86_64-pc-windows-msvc\release\screenpipe.exe") {
-          ".\target\x86_64-pc-windows-msvc\release\screenpipe.exe"
+        $exePath = if (Test-Path ".\target\x86_64-pc-windows-msvc\release\loopcut.exe") {
+          ".\target\x86_64-pc-windows-msvc\release\loopcut.exe"
         } else {
-          ".\target\release\screenpipe.exe"
+          ".\target\release\loopcut.exe"
         }
         # Copy onnxruntime.dll next to the binary
-        $ortDll = "apps\screenpipe-app-tauri\src-tauri\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll"
+        $ortDll = "apps\loopcut-app-tauri\src-tauri\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll"
         if (Test-Path $ortDll) {
           Copy-Item $ortDll (Split-Path $exePath) -Force
         }
+        # antirez-asr-sys also needs OpenBLAS beside the executable at runtime.
+        Copy-Item "$env:OPENBLAS_PATH/bin/*.dll" (Split-Path $exePath) -Force
         $process = Start-Process -FilePath $exePath -ArgumentList "--debug" -PassThru -RedirectStandardOutput "screenpipe_output.log" -RedirectStandardError "screenpipe_error.log" -NoNewWindow
         Start-Sleep -Seconds 10
         
@@ -141,7 +152,7 @@ jobs:
         }
         Write-Host "CLI ran successfully without crashing"
         
-        $capturedFiles = Get-ChildItem -Path "$env:USERPROFILE\.screenpipe\data" -Recurse
+        $capturedFiles = Get-ChildItem -Path "$env:USERPROFILE\.loopcut\data" -Recurse
         if ($capturedFiles.Count -eq 0) {
           Write-Host "No data was captured"
           exit 1
@@ -173,4 +184,4 @@ jobs:
         name: screenpipe-data
         include-hidden-files: true
         path: |
-          ~/.screenpipe/*
+          ~/.loopcut/*

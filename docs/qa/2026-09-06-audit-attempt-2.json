@@ -1,0 +1,66 @@
+{
+  "workflow_url": "https://github.com/gfrontiero/loopcut-desktop/actions/runs/34037769709",
+  "commit": "4c0b9595c37b1a0606405c91e526786bcec7c45a",
+  "checks": [
+    {
+      "check": "revised product pipe installed through release API",
+      "passed": true
+    },
+    {
+      "check": "both production SQL queries execute against released schema",
+      "passed": true
+    },
+    {
+      "check": "empty input returns insufficient data after querying API",
+      "passed": false
+    },
+    {
+      "check": "synthetic week stored through /add and read back with expected durations",
+      "frames": 45,
+      "passed": true,
+      "seconds": 3600
+    },
+    {
+      "check": "real model completed after querying the product API",
+      "passed": false
+    },
+    {
+      "check": "report identifies Gmail and HubSpot",
+      "passed": false
+    },
+    {
+      "check": "report identifies 15 repetitions",
+      "passed": false
+    },
+    {
+      "check": "report states supported one-hour duration",
+      "passed": false
+    },
+    {
+      "check": "report includes implementation trigger",
+      "passed": false
+    }
+  ],
+  "empty": {
+    "api_tool_queries": 0,
+    "duration_ms": 900466,
+    "error": "",
+    "execution_id": 1,
+    "status": "timed_out",
+    "text": "",
+    "tool_calls": []
+  },
+  "local_model_log_tail": " tg =   1.06 t/s, tg_3s =   1.28 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    372, tg =   1.06 t/s, tg_3s =   1.25 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    376, tg =   1.06 t/s, tg_3s =   1.28 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    380, tg =   1.07 t/s, tg_3s =   1.24 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    385, tg =   1.07 t/s, tg_3s =   1.35 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    389, tg =   1.07 t/s, tg_3s =   1.17 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    392, tg =   1.07 t/s, tg_3s =   0.98 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    397, tg =   1.07 t/s, tg_3s =   1.30 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    400, tg =   1.07 t/s, tg_3s =   0.85 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    402, tg =   1.07 t/s, tg_3s =   0.66 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    405, tg =   1.07 t/s, tg_3s =   0.90 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    407, tg =   1.06 t/s, tg_3s =   0.60 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    411, tg =   1.06 t/s, tg_3s =   1.03 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    414, tg =   1.06 t/s, tg_3s =   0.82 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    417, tg =   1.05 t/s, tg_3s =   0.65 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    420, tg =   1.05 t/s, tg_3s =   0.74 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    422, tg =   1.04 t/s, tg_3s =   0.41 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    425, tg =   1.04 t/s, tg_3s =   0.69 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    429, tg =   1.04 t/s, tg_3s =   0.89 t/s\nslot print_timing: id  0 | task 1084 | n_gen =    432, tg =   1.04 t/s, tg_3s =   0.92 t/s\n[GIN] 2026/09/06 - 14:29:26 | 200 |          7m0s |       127.0.0.1 | POST     \"/v1/chat/completions\"\nslot print_timing: id  0 | task 1084 | n_gen =    435, tg =   1.03 t/s, tg_3s =   0.75 t/s\nsrv          stop: cancel task, id_task = 1084\nslot      release: id  0 | task 1084 | stop processing: n_tokens = 3309, truncated = 0\nsrv  update_slots: all slots are idle\nsrv  server_strea: conv_id= (empty=1)\nsrv    operator(): chat format: peg-native\nslot get_availabl: id  0 | task -1 |  - checking sim = 1.000 (2874/2874) > 0.100\nslot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 1.000 (> 0.100 thold), f_keep = 0.869\nslot launch_slot_: id  0 | task -1 | sampler chain: logits -> ?penalties -> ?dry -> ?top-n-sigma -> top-k -> ?typical -> ?top-p -> ?min-p -> ?xtc -> ?temp-ext -> dist \nslot launch_slot_: id  0 | task -1 | sampler params: \n\trepeat_last_n = 64, repeat_penalty = 1.000, frequency_penalty = 0.000, presence_penalty = 0.000\n\tdry_multiplier = 0.000, dry_base = 1.750, dry_allowed_length = 2, dry_penalty_last_n = 64\n\ttop_k = 20, top_p = 1.000, min_p = 0.000, xtc_probability = 0.000, xtc_threshold = 0.100, typical_p = 1.000, top_n_sigma = -1.000, temp = 1.000\n\tmirostat = 0, mirostat_lr = 0.100, mirostat_ent = 5.000, adaptive_target = -1.000, adaptive_decay = 0.900\nslot launch_slot_: id  0 | task 1522 | processing task, is_child = 0\nslot   operator(): id  0 | task 1522 | new prompt, n_ctx_slot = 16384, n_keep = 4, task.n_tokens = 2874\nslot   operator(): id  0 | task 1522 | need to evaluate at least 1 token for each active slot (n_past = 2874, task.n_tokens() = 2874)\nslot   operator(): id  0 | task 1522 | n_past was set to 2873\nslot   operator(): id  0 | task 1522 | cached n_tokens = 2873, memory_seq_rm [2873, end)\nslot init_sampler: id  0 | task 1522 | init sampler, took 0.81 ms, tokens: text = 2874, total = 2874\nslot print_timing: id  0 | task 1522 | n_gen =    100, tg =   0.92 t/s, tg_3s =   0.93 t/s\n[GIN] 2026/09/06 - 14:31:22 | 200 |         1m52s |       127.0.0.1 | POST     \"/v1/chat/completions\"\nsrv          stop: cancel task, id_task = 1522\nslot      release: id  0 | task 1522 | stop processing: n_tokens = 2977, truncated = 0\nsrv  update_slots: all slots are idle\n",
+  "passed": false,
+  "quality_note": "Automated content checks are followed by manual review; they are not proof of report quality or customer savings.",
+  "scope": "Released Mac engine + revised product pipe + local qwen3:4b-instruct-2507-q4_K_M + synthetic /add input",
+  "workweek": {
+    "api_tool_queries": 0,
+    "duration_ms": 900227,
+    "error": "",
+    "execution_id": 2,
+    "status": "timed_out",
+    "text": "",
+    "tool_calls": []
+  }
+}
