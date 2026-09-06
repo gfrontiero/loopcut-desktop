@@ -149,7 +149,7 @@ jemalloc = ["tikv-jemallocator"]
 
 [[bin]]
 name = "loopcut"
-path = "src/bin/loopcut-engine.rs"
+path = "src/bin/screenpipe-engine.rs"
 
 
 [target.'cfg(unix)'.dependencies]

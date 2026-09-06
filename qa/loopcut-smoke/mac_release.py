@@ -108,6 +108,13 @@ try:
         report["health_note"] = "An API response is not proof of screen capture, audit generation, or a usable UI."
         if process.poll() is not None:
             failure = True
+        if os.environ.get("LOOPCUT_AUDIT_TEST") == "1":
+            if not health:
+                raise RuntimeError("No local health response; cannot start the audit integration test")
+            from audit_integration import run_audit
+            audit_passed = run_audit()
+            report["full_audit_test"] = "See audit-integration.json: released engine with revised pipe and local model; desktop UI not rebuilt."
+            failure = failure or not audit_passed
     report["startup_diagnostics"] = {
         "stdout_tail": scrub(stdout_path.read_text(errors="replace")[-4000:]),
         "stderr_tail": scrub(stderr_path.read_text(errors="replace")[-4000:]),

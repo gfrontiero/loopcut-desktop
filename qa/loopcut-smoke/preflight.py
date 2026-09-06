@@ -60,7 +60,7 @@ report = {
     "failed": sum(not c["passed"] for c in checks),
     "audit_source_candidates": candidates[:30],
     "audit_source_search_note": "A text inventory is not proof that an audit engine exists or is absent.",
-    "full_audit_test": "NOT RUN: no report-generation entry point has yet been verified.",
+    "full_audit_test": "This job checks source paths only. See audit-integration.json from the Mac job for report execution results.",
 }
 (OUT / "source-preflight.json").write_text(json.dumps(report, indent=2) + "\n")
 print(json.dumps(report, indent=2))
