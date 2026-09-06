@@ -1,5 +1,5 @@
 {
-  "description": "Synthetic five-day reference workload. No real contacts or user screen data. This fixture has not been passed through Loopcut's audit pipeline.",
+  "description": "Synthetic five-day reference workload. No real contacts or user screen data. Used by the independent audit integration; recorded workflow observations are not measured savings.",
   "ground_truth": {
     "days": 5,
     "workflow": "Gmail -> HubSpot",

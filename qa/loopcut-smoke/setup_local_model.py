@@ -40,7 +40,7 @@ for attempt in range(60):
 else:
     raise TimeoutError("Local model server did not start")
 request = urllib.request.Request("http://127.0.0.1:11434/api/pull",
-    data=json.dumps({"model": "qwen3:4b-instruct-2507-q4_K_M", "stream": True}).encode(),
+    data=json.dumps({"model": "qwen2.5:3b", "stream": True}).encode(),
     headers={"Content-Type": "application/json"})
 last_status = ""
 with urllib.request.urlopen(request, timeout=600) as resp:
