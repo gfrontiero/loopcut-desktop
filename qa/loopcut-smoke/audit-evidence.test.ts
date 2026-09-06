@@ -149,7 +149,7 @@ test("pagination is bounded and the report discloses a truncated week", async ()
   if (result.status !== "ready") throw new Error(JSON.stringify(result));
   expect(api.queries).toHaveLength(6);
   expect(result.evidence.coverage).toMatchObject({ matchingFrames: 10005, analyzedFrames: 10000, sampled: true });
-  expect(result.prompt).toContain("Only the earliest 10000 of 10005");
+  expect(result.evidence.coverage.limitations.join(" ")).toContain("Only the earliest 10000 of 10005");
   api.db.close();
 });
 

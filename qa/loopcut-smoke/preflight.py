@@ -31,13 +31,17 @@ for path, doc in manifests.items():
                 "source": str(source.relative_to(ROOT)),
                 "passed": source.is_file(),
             })
-workflow = ROOT / ".github/workflows/e2e-macos.yml"
-for package in re.findall(r"cargo (?:build|test)[^\n]*? -p ([\w-]+)", workflow.read_text()):
-    checks.append({
-        "check": "existing Mac CI refers to a real package",
-        "package": package,
-        "passed": package in packages,
-    })
+for name in ("ci.yml", "e2e-test.yml", "e2e-macos.yml", "windows-integration-test.yml"):
+    workflow = ROOT / ".github/workflows" / name
+    # Only executable YAML lines, not commented-out examples.
+    source = "\n".join(line for line in workflow.read_text().splitlines() if not line.lstrip().startswith("#"))
+    for package in re.findall(r"cargo (?:build|test)[^\n]*? -p ([\w-]+)", source):
+        checks.append({"check": "workflow package exists", "workflow": name, "package": package, "passed": package in packages})
+    for path in re.findall(r"(?:working-directory|projectPath|workspaces):\s*[\"']?(\.?/?(?:apps|crates)/[^\s\"']+)", source):
+        checks.append({"check": "workflow project directory exists", "workflow": name, "source": path, "passed": (ROOT / path).is_dir()})
+    for path in re.findall(r"\bcp\s+(crates/[^\s]+)", source):
+        checks.append({"check": "workflow input file exists", "workflow": name, "source": path, "passed": (ROOT / path).is_file()})
+    checks.append({"check": "workflow uses an available Windows runner label", "workflow": name, "passed": "windows-2019" not in source})
 roots = [
     ROOT / "crates/loopcut-core/src",
     ROOT / "crates/loopcut-core/assets",

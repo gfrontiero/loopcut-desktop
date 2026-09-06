@@ -9,12 +9,12 @@ import { ChevronDown, ChevronUp, Plus, RefreshCw } from "lucide-react";
 import { PipeAIIconLarge } from "@/components/pipe-ai-icon";
 import { type TemplatePipe } from "@/lib/hooks/use-pipes";
 import { FALLBACK_TEMPLATES, type CustomTemplate } from "@/lib/summary-templates";
-import { runAutomationAudit } from "@/lib/automation-audit";
+import { runAutomationAudit, type AuditEvidence } from "@/lib/automation-audit";
 import { type Suggestion } from "@/lib/hooks/use-auto-suggestions";
 import { CustomSummaryBuilder } from "./custom-summary-builder";
 
 interface SummaryCardsProps {
-  onSendMessage: (message: string, displayLabel?: string) => void | Promise<void>;
+  onSendMessage: (message: string, displayLabel?: string, auditEvidence?: AuditEvidence) => void | Promise<void>;
   autoSuggestions: Suggestion[];
   suggestionsRefreshing?: boolean;
   onRefreshSuggestions?: () => void;
@@ -141,7 +141,7 @@ export function SummaryCards({
     setAuditNotice(null);
     try {
       const result = await runAutomationAudit(
-        (prompt) => onSendMessage(prompt, `${pipe.icon} ${pipe.title}`),
+        (prompt, evidence) => onSendMessage(prompt, `${pipe.icon} ${pipe.title}`, evidence),
         { signal: controller.signal },
       );
       if (!controller.signal.aborted && result.status !== "ready") setAuditNotice(result.message);

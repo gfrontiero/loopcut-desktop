@@ -62,13 +62,13 @@ jobs:
       - name: Copy test image
         run: |
           mkdir -p target/debug/deps
-          cp crates/screenpipe-screen/tests/testing_OCR.png target/debug/deps/
+          cp crates/loopcut-screen/tests/testing_OCR.png target/debug/deps/
 
       - name: Run cargo tests
         run: cargo test
 
   test-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -119,28 +119,28 @@ jobs:
         run: |
           $url = "https://github.com/microsoft/onnxruntime/releases/download/v1.19.2/onnxruntime-win-x64-1.19.2.zip"
           $zipFile = "onnxruntime-win-x64-1.19.2.zip"
-          $extractDir = "apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2"
+          $extractDir = "apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2"
           Invoke-WebRequest -Uri $url -OutFile $zipFile
           if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }
-          7z x $zipFile -o"apps/screenpipe-app-tauri/src-tauri/" -y
+          7z x $zipFile -o"apps/loopcut-app-tauri/src-tauri/" -y
           Write-Host "ONNX Runtime extracted to $extractDir"
 
       - name: Run pre_build.js
         shell: bash
         run: bun ./scripts/pre_build.js
-        working-directory: ./apps/screenpipe-app-tauri
+        working-directory: ./apps/loopcut-app-tauri
 
       - name: Copy test image
         shell: bash
         run: |
           mkdir -p target/debug/deps || true
-          cp crates/screenpipe-screen/tests/testing_OCR.png target/debug/deps/
+          cp crates/loopcut-screen/tests/testing_OCR.png target/debug/deps/
 
       - name: Run specific Windows OCR cargo test
         env:
           RUSTFLAGS: "-C link-arg=/LTCG"
           ORT_STRATEGY: system
-          ORT_LIB_LOCATION: ${{ github.workspace }}/apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
+          ORT_LIB_LOCATION: ${{ github.workspace }}/apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
           # Use prebuilt NASM objects on Windows: https://aws.github.io/aws-lc-rs/requirements/windows.html#prebuilt-nasm-objects
           AWS_LC_SYS_PREBUILT_NASM: "1"
         run: cargo test test_process_ocr_task_windows --release --target x86_64-pc-windows-msvc
@@ -149,19 +149,19 @@ jobs:
         env:
           RUSTFLAGS: "-C link-arg=/LTCG"
           ORT_STRATEGY: system
-          ORT_LIB_LOCATION: ${{ github.workspace }}/apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
+          ORT_LIB_LOCATION: ${{ github.workspace }}/apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
           # Use prebuilt NASM objects on Windows: https://aws.github.io/aws-lc-rs/requirements/windows.html#prebuilt-nasm-objects
           AWS_LC_SYS_PREBUILT_NASM: "1"
-        run: cargo test -p screenpipe-core pii_removal --release --target x86_64-pc-windows-msvc
+        run: cargo test -p loopcut-core pii_removal --release --target x86_64-pc-windows-msvc
 
       - name: Run PII redaction tests
         env:
           RUSTFLAGS: "-C link-arg=/LTCG"
           ORT_STRATEGY: system
-          ORT_LIB_LOCATION: ${{ github.workspace }}/apps/screenpipe-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
+          ORT_LIB_LOCATION: ${{ github.workspace }}/apps/loopcut-app-tauri/src-tauri/onnxruntime-win-x64-1.19.2
           # Use prebuilt NASM objects on Windows: https://aws.github.io/aws-lc-rs/requirements/windows.html#prebuilt-nasm-objects
           AWS_LC_SYS_PREBUILT_NASM: "1"
-        run: cargo test -p screenpipe-engine --lib pii_redaction_tests --release --target x86_64-pc-windows-msvc
+        run: cargo test -p loopcut-engine --lib pii_redaction_tests --release --target x86_64-pc-windows-msvc
 
       # pipes_test removed — pipe manager system deleted in #2212
 
@@ -194,24 +194,22 @@ jobs:
         env:
           SKIP_SCREENPIPE_SETUP: true # avoid trying to copy screenpipe binaries, not yet built (next step)
         run: bun ./scripts/pre_build.js
-        working-directory: ./apps/screenpipe-app-tauri
+        working-directory: ./apps/loopcut-app-tauri
 
       - name: Copy test image
         shell: bash
         run: |
           mkdir -p target/debug/deps || true
-          cp crates/screenpipe-screen/tests/testing_OCR.png target/debug/deps/
+          cp crates/loopcut-screen/tests/testing_OCR.png target/debug/deps/
 
       - name: Run specific Apple OCR cargo test
         shell: bash
-        env:
-          DYLD_LIBRARY_PATH: /Users/runner/work/screenpipe/screenpipe/crates/screenpipe-screen/lib
         # Only test vision package to avoid whisper-rs build issues on macOS CI
-        run: cargo test -p screenpipe-screen test_apple_native_ocr
+        run: cargo test -p loopcut-screen test_apple_native_ocr
 
       - name: Run PII removal tests
-        run: cargo test -p screenpipe-core pii_removal
+        run: cargo test -p loopcut-core pii_removal
 
       # PII redaction tests skipped on macOS due to whisper-rs build issues
       # - name: Run PII redaction tests
-      #   run: cargo test -p screenpipe-engine --lib pii_redaction_tests
+      #   run: cargo test -p loopcut-engine --lib pii_redaction_tests

@@ -110,8 +110,15 @@ def write_png(path):
 
 def run_audit():
     assert os.environ.get("GITHUB_ACTIONS") == "true", "Only run on a disposable GitHub runner"
-    result = {"scope": "Production TypeScript evidence collector + released Mac database and Pi report engine + local qwen2.5:3b + synthetic /add input; desktop UI bundle is not rebuilt", "checks": []}
+    result = {"scope": "Production TypeScript evidence collector and report validator/renderer + released Mac database and Pi report engine + local qwen2.5:3b + synthetic /add input; desktop UI bundle is not rebuilt", "checks": []}
     try:
+        # Startup has already been checked. This is an import/analysis test, so
+        # stop synthetic audio capture rather than competing with transcription.
+        stop_request = urllib.request.Request(API + "/audio/stop", data=b"{}",
+            headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(stop_request, timeout=30) as response:
+            assert response.status == 200
+        result["recording_scope"] = "Audio capture stopped after startup using the release API; not a live-recording performance benchmark."
         config_path = Path.home() / ".loopcut/store.bin"
         config = json.loads(config_path.read_text()) if config_path.exists() else {}
         settings = config.setdefault("settings", {})
@@ -165,21 +172,28 @@ def run_audit():
         result["checks"].append({"check": "production collector reads and validates 45 frames, 15 transitions and 60 minutes before report dispatch", "passed": True})
         audit = wait_for_report("audit-workweek", previous)
         result["workweek"] = audit
-        text = audit["text"].lower()
+        rendered_process = subprocess.run(["bun", "qa/loopcut-smoke/audit-render.ts",
+            str(OUT / "audit-workweek-prepared.json"), str(OUT / "audit-workweek.md")],
+            cwd=ROOT, capture_output=True, text=True, timeout=30)
+        assert rendered_process.returncode == 0, rendered_process.stderr[-1000:]
+        rendered = json.loads(rendered_process.stdout)
+        result["rendered"] = rendered
+        (OUT / "audit-rendered.md").write_text(rendered["markdown"] + "\n")
+        text = rendered["markdown"]
         checks = {
-            "real model completed using prepared evidence without retrieval tools": audit["status"] == "completed" and len(audit["tool_calls"]) == 0,
-            "report identifies Gmail and HubSpot": "gmail" in text and "hubspot" in text,
-            "report identifies 15 observed transitions": bool(re.search(r"\b15\b|fifteen", text)),
-            "report states supported one-hour duration": bool(re.search(r"\b60\s*(?:minutes|min)\b|\b(?:1|one)\s*hour", text)),
-            "report includes implementation trigger": "trigger" in text,
-            "report cites actual source frame IDs": any(
-                re.search(r"\b" + str(example["fromFrame"]) + r"\b", text) and
-                re.search(r"\b" + str(example["toFrame"]) + r"\b", text)
+            "real model completes a proposal without retrieval tools": audit["status"] == "completed" and len(audit["tool_calls"]) == 0,
+            "production validator accepts the structured proposal": rendered["status"] == "ready",
+            "application renders source and destination from verified evidence": all(
+                label in text for label in [evidence["opportunities"][0]["from"], evidence["opportunities"][0]["to"]]),
+            "application renders supported transitions and interval minutes": "15 observed transitions; 60 interval minutes" in text,
+            "application renders explicit source frame citations": all(
+                f"frames {example['fromFrame']} → {example['toFrame']} at {example['at']}" in text
                 for example in evidence["opportunities"][0]["examples"]),
-            "report does not claim guaranteed savings": bool(re.search(r"unmeasured|uncertain|not guaranteed|not exact|inference|inferred", text)),
+            "application renders recording coverage and unmeasured savings": "across 5 UTC dates" in text and "Achievable savings are unmeasured" in text,
+            "implementation feasibility remains explicitly unverified": rendered["implementationVerified"] is False,
         }
         result["checks"].extend({"check": name, "passed": passed} for name, passed in checks.items())
-        result["quality_note"] = "Automated content checks are followed by manual review; they are not proof of report quality or customer savings."
+        result["quality_note"] = "The production schema/evidence gate is followed by review of the actual proposal; structural validity is not proof of useful automation, feasibility or customer savings."
     except Exception as error:
         result["error"] = str(error)
         result["checks"].append({"check": "integration completed", "passed": False})

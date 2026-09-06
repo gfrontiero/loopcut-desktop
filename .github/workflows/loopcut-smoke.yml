@@ -8,12 +8,17 @@ on:
       - qa/loopcut-smoke/**
       - .github/workflows/loopcut-smoke.yml
       - .github/workflows/e2e-macos.yml
+      - .github/workflows/ci.yml
+      - .github/workflows/e2e-test.yml
+      - .github/workflows/windows-integration-test.yml
       - crates/loopcut-engine/Cargo.toml
       - crates/loopcut-audio/Cargo.toml
       - crates/loopcut-core/assets/pipes/automate-my-work/**
       - crates/loopcut-core/src/pipes/mod.rs
       - apps/loopcut-app-tauri/lib/summary-templates.ts
       - apps/loopcut-app-tauri/lib/automation-audit.ts
+      - apps/loopcut-app-tauri/lib/automation-audit-report.ts
+      - apps/loopcut-app-tauri/components/standalone-chat.tsx
       - apps/loopcut-app-tauri/components/chat/summary-cards.tsx
   workflow_dispatch:
 
@@ -59,11 +64,11 @@ jobs:
         with:
           bun-version: "1.3.10"
       - name: Exercise production collector, dispatch gating and sanitizer
-        run: bun test qa/loopcut-smoke/privacy.test.ts qa/loopcut-smoke/audit-prompt.test.ts qa/loopcut-smoke/audit-evidence.test.ts
+        run: bun test qa/loopcut-smoke/privacy.test.ts qa/loopcut-smoke/audit-prompt.test.ts qa/loopcut-smoke/audit-evidence.test.ts qa/loopcut-smoke/audit-report.test.ts
       - name: Type-check the production evidence collector
-        run: bunx --package typescript@5.9.3 tsc --noEmit --strict --target ES2020 --lib ES2020,DOM --module esnext --moduleResolution bundler apps/loopcut-app-tauri/lib/automation-audit.ts
+        run: bunx --package typescript@5.9.3 tsc --noEmit --strict --target ES2020 --lib ES2020,DOM --module esnext --moduleResolution bundler apps/loopcut-app-tauri/lib/automation-audit.ts apps/loopcut-app-tauri/lib/automation-audit-report.ts
       - name: Compile the desktop card syntax
-        run: bun build apps/loopcut-app-tauri/components/chat/summary-cards.tsx --target browser --external '*' --outfile /tmp/summary-cards.js
+        run: bun build apps/loopcut-app-tauri/components/chat/summary-cards.tsx apps/loopcut-app-tauri/components/standalone-chat.tsx --target browser --external '*' --outdir /tmp/loopcut-ui
 
   released-mac:
     runs-on: macos-14
