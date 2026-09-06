@@ -1,0 +1,74 @@
+name: Loopcut independent smoke test
+
+on:
+  push:
+    branches:
+      - codex/loopcut-smoke-20260906-04d243
+    paths:
+      - qa/loopcut-smoke/**
+      - .github/workflows/loopcut-smoke.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: loopcut-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GIT_LFS_SKIP_SMUDGE: "1"
+
+jobs:
+  source-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check source targets and audit entry points
+        run: python qa/loopcut-smoke/preflight.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: loopcut-source-preflight
+          path: qa-results/source-preflight.json
+          if-no-files-found: error
+          retention-days: 30
+
+  privacy-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.10"
+      - name: Exercise production sanitizer with synthetic data
+        run: bun test qa/loopcut-smoke/privacy.test.ts
+
+  released-mac:
+    runs-on: macos-14
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify and launch the published Mac beta
+        run: python qa/loopcut-smoke/mac_release.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: loopcut-mac-release-smoke
+          path: qa-results/mac-release-smoke.json
+          if-no-files-found: error
+          retention-days: 30
