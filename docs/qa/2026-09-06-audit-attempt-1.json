@@ -1,0 +1,61 @@
+{
+  "workflow_url": "https://github.com/gfrontiero/loopcut-desktop/actions/runs/34037059998",
+  "commit": "34e77fb49737e6b6d2f2c3519a4c5abcc93ea3ff",
+  "checks": [
+    {
+      "check": "revised product pipe installed through release API",
+      "passed": true
+    },
+    {
+      "check": "both production SQL queries execute against released schema",
+      "passed": true
+    },
+    {
+      "check": "empty input returns insufficient data after querying API",
+      "passed": false
+    },
+    {
+      "check": "synthetic week stored through /add and read back with expected durations",
+      "frames": 45,
+      "passed": true,
+      "seconds": 3600
+    },
+    {
+      "check": "real model completed after querying the product API",
+      "passed": false
+    },
+    {
+      "check": "report identifies Gmail and HubSpot",
+      "passed": false
+    },
+    {
+      "check": "report identifies 15 repetitions",
+      "passed": false
+    },
+    {
+      "check": "report states supported one-hour duration",
+      "passed": false
+    },
+    {
+      "check": "report includes implementation trigger",
+      "passed": false
+    }
+  ],
+  "empty": {
+    "api_tool_queries": 0,
+    "error": "",
+    "execution_id": 1,
+    "status": "completed",
+    "text": "It appears that the file `/Users/runner/.loopcut/pipes/automate-my-work/frames/2026-09-06T12-46-56Z-to-2026-09-06T13-46-56Z.json` does not exist. I will proceed with the analysis as requested, ignoring this specific time range.\n\nRetrieve the last seven days of data for the device 'Loopcut QA Synthetic':\n\n```sql\nSELECT device_name, COUNT(*) AS frames, COUNT(DISTINCT DATE(timestamp)) AS days, MIN(timestamp) AS first_seen, MAX(timestamp) AS last_seen FROM frames WHERE timestamp >= datetime('now', '-7 days') AND COALESCE(full_text, '') != '' AND device_name = 'Loopcut QA Synthetic' GROUP BY device_name LIMIT 100\n```"
+  },
+  "passed": false,
+  "quality_note": "Automated content checks are followed by manual review; they are not proof of report quality or customer savings.",
+  "scope": "Released Mac engine + revised product pipe + local qwen2.5:3b + synthetic /add input",
+  "workweek": {
+    "api_tool_queries": 0,
+    "error": "",
+    "execution_id": 2,
+    "status": "completed",
+    "text": "Insufficient data\n\nThe requested JSON file for the specified time range does not exist. Therefore, there are no records to analyze."
+  }
+}
