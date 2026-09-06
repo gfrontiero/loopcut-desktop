@@ -1,5 +1,7 @@
 # Application evidence collection — 6 September 2026
 
+This is the historical third attempt. See the subsequent [structured-report and build follow-up](2026-09-06-structured-audit-report.md) for later changes and results.
+
 The application-code change proposed after the two failed model attempts is implemented in draft PR #1. The desktop Automate My Work card reads and validates recordings before dispatching a report to the configured Pi writer. The real Mac integration confirms that acquisition, arithmetic and empty-data gating work. The model completed a report, but its output still fails quality review.
 
 Source commit: `e5892ad3079ccf78473f54ec7bad94176f538b19`. [Independent test run](https://github.com/gfrontiero/loopcut-desktop/actions/runs/34040776468).

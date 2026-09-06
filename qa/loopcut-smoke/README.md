@@ -45,4 +45,4 @@ python3 qa/loopcut-smoke/mac_release.py
 
 The full integration is restricted to a disposable GitHub Actions runner. The workflow installs Bun and a checksum-pinned Ollama release, then runs `mac_release.py` with `LOOPCUT_AUDIT_TEST=1`. Prepared evidence, raw model output, application-rendered Markdown and execution records are uploaded from `qa-results/` for 30 days. There is no recurring schedule.
 
-[Initial results](../../docs/qa/2026-09-06-loopcut-test-results.md) and [the two earlier failed model attempts](../../docs/qa/2026-09-06-loopcut-audit-followup.md) are retained as historical evidence.
+[Structured-report and build follow-up](../../docs/qa/2026-09-06-structured-audit-report.md) records the latest assessment. [Initial results](../../docs/qa/2026-09-06-loopcut-test-results.md), [the first two failed model attempts](../../docs/qa/2026-09-06-loopcut-audit-followup.md), and [the third application-evidence attempt](../../docs/qa/2026-09-06-application-evidence-audit.md) are retained as historical evidence.
