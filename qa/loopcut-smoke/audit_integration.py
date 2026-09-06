@@ -61,6 +61,17 @@ def assistant_text(stdout):
                 messages.append(text)
     return "\n\n".join(messages), tool_queries
 
+def tool_calls(stdout):
+    calls = []
+    for line in stdout.splitlines():
+        try:
+            event = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if event.get("type") == "tool_execution_start":
+            calls.append({"tool": event.get("toolName"), "args": str(scrub(event.get("args", {})))[:1000]})
+    return calls
+
 def run_pipe(label):
     previous = {e["id"] for e in api("/pipes/automate-my-work/executions")["data"]}
     result = api("/pipes/automate-my-work/run", {"notification_context": {
@@ -77,6 +88,7 @@ def run_pipe(label):
             text, queries = assistant_text(current.get("stdout", ""))
             (OUT / (label + ".md")).write_text(scrub(text) + "\n")
             return {"execution_id": current["id"], "status": current["status"], "api_tool_queries": queries,
+                    "duration_ms": current.get("duration_ms"), "tool_calls": tool_calls(current.get("stdout", "")),
                     "text": text, "error": current.get("stderr", "")[-1000:]}
         if time.monotonic() - last_notice > 30:
             print(label + ": " + (current or {}).get("status", "starting"), flush=True)
@@ -93,13 +105,13 @@ def write_png(path):
 
 def run_audit():
     assert os.environ.get("GITHUB_ACTIONS") == "true", "Only run on a disposable GitHub runner"
-    result = {"scope": "Released Mac engine + revised product pipe + local qwen2.5:3b + synthetic /add input", "checks": []}
+    result = {"scope": "Released Mac engine + revised product pipe + local qwen3:4b-instruct-2507-q4_K_M + synthetic /add input", "checks": []}
     try:
         config_path = Path.home() / ".loopcut/store.bin"
         config = json.loads(config_path.read_text()) if config_path.exists() else {}
         settings = config.setdefault("settings", {})
         presets = settings.setdefault("aiPresets", [])
-        presets.append({"id": "loopcut-qa-local", "model": "qwen2.5:3b", "provider": "native-ollama",
+        presets.append({"id": "loopcut-qa-local", "model": "qwen3:4b-instruct-2507-q4_K_M", "provider": "native-ollama",
                         "url": "http://127.0.0.1:11434/v1", "defaultPreset": False})
         config_path.write_text(json.dumps(config))
         source = ROOT / "crates/loopcut-core/assets/pipes/automate-my-work/pipe.md"
@@ -163,6 +175,9 @@ def run_audit():
         result["error"] = str(error)
         result["checks"].append({"check": "integration completed", "passed": False})
     result["passed"] = all(c["passed"] for c in result["checks"])
+    model_log = Path(os.environ["RUNNER_TEMP"]) / "loopcut-local-model/server.log"
+    if model_log.exists():
+        result["local_model_log_tail"] = model_log.read_text(errors="replace")[-4000:]
     (OUT / "audit-integration.json").write_text(json.dumps(scrub(result), indent=2))
     print(json.dumps(scrub(result), indent=2), flush=True)
     return result["passed"]
