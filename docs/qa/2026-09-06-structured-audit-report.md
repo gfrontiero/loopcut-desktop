@@ -60,6 +60,18 @@ At `17bb38f2`, the repository-wide formatting job reported differences in 26 Rus
 
 The first Windows Rust and desktop E2E attempts reached the corrected directories but failed on the removed FFmpeg download. After the archive URL correction, the Windows Rust job passed `Run pre_build.js` and `Copy test image` and reached `Run specific Windows OCR cargo test`. This confirms recovery from the download blocker; it does not confirm a completed Windows build. Full checks continue in [desktop E2E](https://github.com/gfrontiero/loopcut-desktop/actions/runs/34043616456) and [Rust CI](https://github.com/gfrontiero/loopcut-desktop/actions/runs/34043616444).
 
+## Later compiler failures and follow-up
+
+The completed `58404524` compiler jobs found additional blockers after passing preparation:
+
+| Job | Failure | Follow-up in this branch |
+| --- | --- | --- |
+| [Windows Rust](https://github.com/gfrontiero/loopcut-desktop/actions/runs/34043616444/job/101514697878) | `loopcut-audio/build.rs` still installs and links ONNX through the former app directory; rename failed | Both directory references now use `apps/loopcut-app-tauri` |
+| [Mac Rust](https://github.com/gfrontiero/loopcut-desktop/actions/runs/34043616444/job/101514698081) | `capture_retry_test.rs` includes a migration through the former `screenpipe-db` directory | The include now resolves to the existing `loopcut-db` migration |
+| [Windows CLI](https://github.com/gfrontiero/loopcut-desktop/actions/runs/34043616468/job/101514766717) | `antirez-asr-sys` cannot find `cblas.h` | The workflow now runs the repository's existing OpenBLAS setup before compiling and copies its DLLs beside the CLI before launch |
+
+The two changed source paths resolve locally and 32 source-reference checks pass after the added workflow directory. Compilation and runtime validation of these follow-ups are pending. Mac logs also contain duplicate `cidre` symbol warnings; these are not resolved or characterized as a fatal linker error by this change. These further repairs do not change the report writer or turn the timed-out native report into a pass.
+
 ## Proposal review standard
 
 Beyond JSON acceptance, review whether the proposed trigger replaces the observed copying, how the relevant Gmail messages are selected, how a unique destination record is chosen, what happens to unmatched or ambiguous records, how retries avoid duplicate notes, and how output accuracy and manual effort would be compared in a small sample.
