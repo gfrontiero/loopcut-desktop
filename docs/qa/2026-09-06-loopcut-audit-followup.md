@@ -1,5 +1,7 @@
 # Loopcut audit test follow-up — 6 September 2026
 
+Historical results for the first two model attempts. The subsequent application-code change and its completed test are documented in [Application evidence collection](2026-09-06-application-evidence-audit.md).
+
 **The audit test is now implemented and has been run against the actual released engine. It did not produce a passing report.** The source-reference fixes and data-import checks pass. The proposed report instructions and a larger local model were insufficient to establish a reliable audit.
 
 This supersedes the initial report's “not run” status for the narrow import-to-audit integration. It does not certify the entire desktop product.
@@ -69,7 +71,7 @@ The next change should make evidence collection an application step before model
 3. Give the model the validated evidence to explain and recommend actions. Do not rely on the model deciding whether to obtain the data.
 4. Validate the resulting report against that evidence, then test it with the production-intended model and an explicitly chosen latency budget.
 
-That code change is **not implemented in this PR**. The current proposed prompt remains unvalidated for customer delivery.
+At the time of these two attempts, that application-code change was not implemented. It was subsequently added and tested; see [Application evidence collection](2026-09-06-application-evidence-audit.md). The report-quality limitation remains open.
 
 ## Other existing CI failures
 
